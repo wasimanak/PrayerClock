@@ -1,0 +1,86 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_tasbih"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient_main">
+
+    <!-- Top glow (Optional, keeping low opacity for depth) -->
+    <View
+        android:layout_width="500dp"
+        android:layout_height="500dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="-250dp"
+        android:alpha="0.3"
+        android:background="@drawable/circle_glow" />
+
+    <!-- Back Button (Reused as spacer or back if needed, but nav bar handles it now) -->
+    <!-- Keeping it for layout structure consistency if needed, but the Nav Bar is primary -->
+    <TextView
+        android:id="@+id/btnMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="16dp"
+        android:text="←"
+        android:textSize="28sp"
+        android:textColor="#FFFFFF"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="4dp"
+        android:visibility="gone" />
+
+    <!-- Header -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tasbih List"
+        android:textSize="28sp"
+        android:fontFamily="@font/jameel_noori_nastaleeq"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="50dp"
+        android:layout_centerHorizontal="true"
+        android:letterSpacing="0.05"
+        android:shadowColor="#80000000"
+        android:shadowDx="0"
+        android:shadowDy="4"
+        android:shadowRadius="8" />
+
+    <!-- RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTasbih"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/tvTitle"
+        android:layout_above="@+id/nav_include"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:clipToPadding="false"
+        android:layout_marginTop="10dp"/>
+
+    <!-- Add Button -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/nav_include"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="24dp"
+        android:contentDescription="Add Tasbih"
+        app:backgroundTint="#2A2A5A"
+        app:tint="#FFFFFF"
+        app:elevation="8dp"
+        app:borderWidth="0dp"
+        app:srcCompat="@android:drawable/ic_input_add"/>
+
+    <include
+        android:id="@+id/nav_include"
+        layout="@layout/layout_bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>

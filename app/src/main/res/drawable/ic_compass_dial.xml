@@ -1,0 +1,21 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+  <!-- Outer Ring -->
+  <path
+      android:pathData="M100,100m-90,0a90,90 0,1 1,180 0a90,90 0,1 1,-180 0"
+      android:strokeWidth="2"
+      android:strokeColor="#44FFFFFF"/>
+  <!-- N, E, S, W Marks -->
+  <path
+      android:pathData="M100,15L100,25 M100,175L100,185 M15,100L25,100 M175,100L185,100"
+      android:strokeWidth="2"
+      android:strokeColor="#FFD700"/>
+  <!-- Degree Marks -->
+  <path
+      android:pathData="M163.64,163.64L156.57,156.57 M36.36,36.36L43.43,43.43 M163.64,36.36L156.57,43.43 M36.36,163.64L43.43,156.57"
+      android:strokeWidth="1"
+      android:strokeColor="#88FFFFFF"/>
+</vector>

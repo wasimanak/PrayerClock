@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+  <!-- Needle -->
+  <path
+      android:fillColor="#EF4444"
+      android:pathData="M50,10 L45,50 L55,50 Z"/>
+  <path
+      android:fillColor="#AAAAAA"
+      android:pathData="M50,90 L45,50 L55,50 Z"/>
+  <!-- Pivot -->
+  <path
+      android:fillColor="#FFD700"
+      android:pathData="M50,50m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0"/>
+</vector>

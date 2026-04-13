@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingVertical="4dp"
+    android:paddingHorizontal="8dp"
+    android:gravity="center_vertical">
+
+    <!-- Adhan (Right Aligned in RTL, Left in LTR - but user wants specific order)
+         Original was: Adhan, Jamat, Name.
+         Wait, original XML order: Adhan(Start), Jamat(Center), Name(End).
+         BUT header in main_activity.xml was: Adhan(End), Jamat(Center), Namaz(Start).
+         This is confusing. Let's look at the HEADER again.
+         Header: 
+           Start (Left): Namaz (Gravity Start?? Wait. 
+               Last TextView: text="نماز", gravity="start"
+               First TextView: text="اذان", gravity="end"
+           So: Adhan is LEFT? No.
+               LinearLayout orientation horizontal.
+               Child 1: Adhan. Child 2: Jamat. Child 3: Namaz.
+               So visually: Adhan | Jamat | Namaz (Left to Right)
+         Let's assume standard LTR behavior for now.
+         
+         However, the user might be expecting Urdu (RTL) flow.
+         Urdu reads Right to Left. So "Namaz" should be on Right?
+         Original Header Code:
+             Child 1 (Leftmost): Adhan
+             Child 3 (Rightmost): Namaz (Gravity Start??)
+         
+         Let's stick to the visual order in the header:
+         Left: Adhan
+         Center: Jamat
+         Right: Namaz/Prayer Name
+         
+         Wait, let's re-read the original XML carefully.
+         Child 1 (Left): Adhan -> gravity="end" ?? (Aligns text to right of its box)
+         Child 3 (Right): Namaz -> gravity="start" ?? (Aligns text to left of its box)
+         
+         If I want a professional look:
+         Left: Adhan Time
+         Center: Jamat Time
+         Right: Prayer Name
+         
+         Let's make them uniform.
+    -->
+
+    <TextView
+        android:id="@+id/tvAdhanTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:fontFamily="sans-serif-medium"
+        android:text="05:30"
+        android:textColor="@color/text_primary"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMinTextSize="14sp"
+        app:autoSizeMaxTextSize="22sp"
+        android:maxLines="1"
+        />
+
+    <TextView
+        android:id="@+id/tvJamatTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:fontFamily="sans-serif-bold"
+        android:text="06:00"
+        android:textColor="@color/gold_accent"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMinTextSize="16sp"
+        app:autoSizeMaxTextSize="24sp"
+        android:maxLines="1"
+        />
+
+    <TextView
+        android:id="@+id/tvPrayerName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:fontFamily="@font/jameel_noori_nastaleeq"
+        android:text="فجر"
+        android:textColor="@color/text_primary"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMinTextSize="16sp"
+        app:autoSizeMaxTextSize="26sp"
+        android:maxLines="1"
+        />
+</LinearLayout>

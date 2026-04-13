@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bg_gradient_main">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        android:textColor="@color/gold_accent"
+        android:textSize="40sp"
+        android:fontFamily="@font/jameel_noori_nastaleeq"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="32dp"
+        android:shadowColor="#80000000"
+        android:shadowDx="0"
+        android:shadowDy="4"
+        android:shadowRadius="8"/>
+
+    <!-- Madhab Section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Asr Calculation Method"
+        android:textColor="@color/gold_accent"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-medium"
+        android:layout_marginBottom="8dp"/>
+
+    <RadioGroup
+        android:id="@+id/rgMadhab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="32dp">
+
+        <RadioButton
+            android:id="@+id/rbHanafi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hanafi (Late Asr)"
+            android:textColor="@color/text_primary"
+            android:buttonTint="@color/emerald_500"
+            android:textSize="16sp"
+            android:padding="8dp"/>
+
+        <RadioButton
+            android:id="@+id/rbShafi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Shafi/Standard (Early Asr)"
+            android:textColor="@color/text_primary"
+            android:buttonTint="@color/emerald_500"
+            android:textSize="16sp"
+            android:padding="8dp"/>
+    </RadioGroup>
+
+    <!-- Location Section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Location Settings"
+        android:textColor="@color/gold_accent"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-medium"
+        android:layout_marginBottom="8dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Auto Location (GPS)"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"/>
+
+        <Switch
+            android:id="@+id/switchAutoLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:thumbTint="@color/emerald_500"
+            android:trackTint="@color/gold_accent"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llManualSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <EditText
+                android:id="@+id/etSearchQuery"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Enter City (e.g. Lahore)"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:inputType="textCapWords"
+                android:backgroundTint="@color/gold_accent"/>
+
+            <Button
+                android:id="@+id/btnSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Search"
+                android:textColor="@color/text_primary"
+                android:backgroundTint="@color/slate_800"/>
+        </LinearLayout>
+        
+        <TextView
+             android:text="Enter city name and search to set manual location."
+             android:textColor="@color/text_secondary"
+             android:alpha="0.8"
+             android:textSize="12sp"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvCurrentLocationInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Current: Check main screen"
+        android:textColor="@color/text_primary"
+        android:alpha="0.7"
+        android:layout_marginTop="8dp"
+        android:textSize="14sp"/>
+
+</LinearLayout>

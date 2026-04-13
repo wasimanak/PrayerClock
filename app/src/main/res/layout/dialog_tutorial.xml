@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#514A5E"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:text="خوش آمدید"
+        android:textColor="@color/led_green"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/jameel_noori_nastaleeq"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:gravity="center"
+        android:text="استعمال کا طریقہ"
+        android:textColor="@color/led_red"
+        android:textSize="24sp"
+        android:fontFamily="@font/jameel_noori_nastaleeq"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:gravity="right"
+        android:text="• جماعت کا وقت تبدیل کرنے کے لئے وقت پر ڈبل کلک کریں"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:fontFamily="@font/jameel_noori_nastaleeq"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:gravity="right"
+        android:text="• شہر تبدیل کرنے کے لئے شہر کے نام پر ڈبل کلک کریں"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:fontFamily="@font/jameel_noori_nastaleeq"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:gravity="right"
+        android:text="• آٹو لوکیشن (GPS) کے لئے شہر کے نام پر ایک بار کلک کریں"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:fontFamily="@font/jameel_noori_nastaleeq"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="12dp"
+        android:gravity="center"
+        android:visibility="gone"
+        android:text="رابطہ کریں"
+        android:textColor="@color/led_green"
+        android:textSize="20sp"
+        android:fontFamily="@font/jameel_noori_nastaleeq"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/btnEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="#D44638"
+            android:text="Email"
+            android:textColor="@color/white"/>
+
+        <Button
+            android:id="@+id/btnWhatsapp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="#25D366"
+            android:text="WhatsApp"
+            android:textColor="@color/white"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnUnderstood"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/led_red"
+        android:text="سمجھ گیا"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:fontFamily="@font/jameel_noori_nastaleeq"/>
+
+</LinearLayout>
