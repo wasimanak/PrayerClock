@@ -52,6 +52,16 @@ public class SettingsActivity extends AppCompatActivity {
         
         setContentView(R.layout.activity_settings);
         
+        try {
+            String versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            android.widget.TextView tvVersion = findViewById(R.id.tvAppVersion);
+            if (tvVersion != null) {
+                tvVersion.setText("Version " + versionName);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
         prefs = getSharedPreferences("PrayerClockPrefs", MODE_PRIVATE);
         
         initViews();

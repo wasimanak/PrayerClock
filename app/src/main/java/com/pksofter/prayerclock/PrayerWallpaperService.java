@@ -55,7 +55,8 @@ public class PrayerWallpaperService extends WallpaperService {
             prefs = getSharedPreferences("PrayerClockPrefs", MODE_PRIVATE);
             
             // Inflate Layout
-            LayoutInflater inflater = LayoutInflater.from(PrayerWallpaperService.this);
+            android.view.ContextThemeWrapper themeWrapper = new android.view.ContextThemeWrapper(PrayerWallpaperService.this, R.style.Theme_PrayerClock);
+            LayoutInflater inflater = LayoutInflater.from(themeWrapper);
             mView = inflater.inflate(R.layout.layout_wallpaper, null);
         }
 

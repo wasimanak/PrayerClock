@@ -37,6 +37,16 @@ public class SplashActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_splash);
 
+        try {
+            String versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            android.widget.TextView tvVersion = findViewById(R.id.tvAppVersion);
+            if (tvVersion != null) {
+                tvVersion.setText("Version " + versionName);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         // Start Pulse Animation
         View logoContainer = findViewById(R.id.logoContainer);
         Animation pulse = AnimationUtils.loadAnimation(this, R.anim.anim_pulse_fade);

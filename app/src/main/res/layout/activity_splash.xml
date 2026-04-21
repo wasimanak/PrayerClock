@@ -49,6 +49,21 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
+        android:id="@+id/tvAppVersion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:alpha="0.7"
+        android:text="Version 1.0"
+        android:textColor="@color/text_primary"
+        android:textSize="12sp"
+        android:fontFamily="sans-serif"
+        app:layout_constraintBottom_toTopOf="@+id/tvPoweredBy"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tvPoweredBy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
