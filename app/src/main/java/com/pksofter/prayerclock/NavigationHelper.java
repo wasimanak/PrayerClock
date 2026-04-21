@@ -123,22 +123,40 @@ public class NavigationHelper {
 
     private void showMoreMenu(View v) {
         resetHideTimer();
-        PopupMenu popup = new PopupMenu(activity, v);
-        popup.getMenu().add("Set Wallpaper");
-        popup.getMenu().add("Settings");
+        
+        com.google.android.material.bottomsheet.BottomSheetDialog bottomSheetDialog = 
+            new com.google.android.material.bottomsheet.BottomSheetDialog(activity);
+        
+        View bottomSheetView = activity.getLayoutInflater().inflate(R.layout.layout_bottom_sheet_more, null);
+        bottomSheetDialog.setContentView(bottomSheetView);
 
-        popup.setOnMenuItemClickListener(item -> {
-            if (item.getTitle().equals("Set Wallpaper")) {
-                Intent intent = new Intent(android.app.WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
-                intent.putExtra(android.app.WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-                        new ComponentName(activity, PrayerWallpaperService.class));
-                activity.startActivity(intent);
-            } else if (item.getTitle().equals("Settings")) {
-                activity.startActivity(new Intent(activity, SettingsActivity.class));
-            }
-            return true;
+        // Make background transparent so rounded corners show
+        if (bottomSheetDialog.getWindow() != null) {
+             bottomSheetDialog.getWindow().findViewById(com.google.android.material.R.id.design_bottom_sheet)
+                 .setBackgroundResource(android.R.color.transparent);
+        }
+
+        bottomSheetView.findViewById(R.id.btnShareApp).setOnClickListener(view -> {
+            bottomSheetDialog.dismiss();
+            String firebaseDownloadUrl = activity.getSharedPreferences("PrayerClockPrefs", android.content.Context.MODE_PRIVATE)
+                .getString("firebase_download_url", ""); 
+            ShareHelper.showShareDialog(activity, firebaseDownloadUrl);
         });
-        popup.show();
+
+        bottomSheetView.findViewById(R.id.btnSetWallpaper).setOnClickListener(view -> {
+            bottomSheetDialog.dismiss();
+            Intent intent = new Intent(android.app.WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
+            intent.putExtra(android.app.WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+                    new ComponentName(activity, PrayerWallpaperService.class));
+            activity.startActivity(intent);
+        });
+
+        bottomSheetView.findViewById(R.id.btnSettings).setOnClickListener(view -> {
+            bottomSheetDialog.dismiss();
+            activity.startActivity(new Intent(activity, SettingsActivity.class));
+        });
+
+        bottomSheetDialog.show();
     }
 
     public void startHideTimer() {

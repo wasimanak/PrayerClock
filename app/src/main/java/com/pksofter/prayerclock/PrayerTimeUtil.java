@@ -40,19 +40,71 @@ public class PrayerTimeUtil {
         return formatTime(time, TimeZone.getDefault());
     }
     
+    public static Date getEffectiveJamatDate(Date adhanTime, String savedJamat, int defaultOffsetMinutes, TimeZone timeZone) {
+        if (adhanTime == null) return null;
+
+        // Minimum allowed Jamat time: Adhan + 5 mins
+        Calendar safeMinCal = Calendar.getInstance(timeZone);
+        safeMinCal.setTime(adhanTime);
+        safeMinCal.add(Calendar.MINUTE, 5);
+
+        // Default Jamat time (if not set): Adhan + defaultOffsetMinutes (rounded up to nearest 5)
+        Calendar defaultCal = Calendar.getInstance(timeZone);
+        defaultCal.setTime(adhanTime);
+        defaultCal.add(Calendar.MINUTE, defaultOffsetMinutes);
+        int unroundedMinutes = defaultCal.get(Calendar.MINUTE);
+        int mod = unroundedMinutes % 5;
+        if (mod > 0) {
+            defaultCal.add(Calendar.MINUTE, 5 - mod);
+        }
+
+        if (savedJamat == null || savedJamat.isEmpty()) {
+            if (defaultCal.getTimeInMillis() < safeMinCal.getTimeInMillis()) {
+                return safeMinCal.getTime();
+            }
+            return defaultCal.getTime();
+        }
+
+        try {
+            String[] parts = savedJamat.split(":");
+            if (parts.length == 2) {
+                int hour = Integer.parseInt(parts[0]);
+                int minute = Integer.parseInt(parts[1]);
+
+                Calendar manualCal = Calendar.getInstance(timeZone);
+                manualCal.setTime(adhanTime);
+                manualCal.set(Calendar.HOUR_OF_DAY, hour);
+                manualCal.set(Calendar.MINUTE, minute);
+                manualCal.set(Calendar.SECOND, 0);
+
+                // Handle overnight Isha Jamat (e.g., Adhan at 8 PM, Jamat at 1 AM)
+                Calendar adhanCal = Calendar.getInstance(timeZone);
+                adhanCal.setTime(adhanTime);
+                if (hour <= 6 && adhanCal.get(Calendar.HOUR_OF_DAY) >= 18) {
+                    manualCal.add(Calendar.DAY_OF_YEAR, 1);
+                }
+
+                // Apply the +5 mins rule if manual setting has fallen behind
+                if (manualCal.getTimeInMillis() < safeMinCal.getTimeInMillis()) {
+                    return safeMinCal.getTime();
+                }
+
+                return manualCal.getTime();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return defaultCal.getTime();
+    }
+
+    public static String getJamatTimeStr(Date adhanTime, String savedJamat, int offsetMinutes, TimeZone timeZone) {
+         Date effectiveDate = getEffectiveJamatDate(adhanTime, savedJamat, offsetMinutes, timeZone);
+         return formatTime(effectiveDate, timeZone);
+    }
+
     public static String getJamatTime(Date adhanTime, int offsetMinutes, TimeZone timeZone) {
-         if (adhanTime == null) return "--:--";
-         Calendar cal = Calendar.getInstance();
-         cal.setTime(adhanTime);
-         cal.add(Calendar.MINUTE, offsetMinutes);
-         
-         int unroundedMinutes = cal.get(Calendar.MINUTE);
-         int mod = unroundedMinutes % 5;
-         if (mod > 0) {
-             cal.add(Calendar.MINUTE, 5 - mod);
-         }
-         
-         return formatTime(cal.getTime(), timeZone);
+         return getJamatTimeStr(adhanTime, null, offsetMinutes, timeZone);
     }
 
     public static Date getIshraqTime(Date sunrise) {

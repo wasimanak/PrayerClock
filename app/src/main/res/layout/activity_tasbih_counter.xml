@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
         android:layout_marginHorizontal="24dp"
-        android:fontFamily="@font/jameel_noori_nastaleeq"
+        android:fontFamily="@font/sakkal"
         android:gravity="center"
         android:text="Tasbih Name"
         android:textColor="@color/gold_accent"

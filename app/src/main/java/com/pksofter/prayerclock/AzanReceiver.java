@@ -11,6 +11,17 @@ public class AzanReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
             String prayerName = intent.getStringExtra("prayer_name");
+            
+            // Mute Check
+            if (prayerName != null) {
+                android.content.SharedPreferences prefs = context.getSharedPreferences("PrayerClockPrefs", Context.MODE_PRIVATE);
+                boolean isMuted = prefs.getBoolean("mute_azan_" + prayerName.toLowerCase(), false);
+                if (isMuted) {
+                    Log.d("AzanReceiver", "Azan Alarm Triggered but MUTED for: " + prayerName);
+                    return; // Skip playback entirely
+                }
+            }
+
             Log.d("AzanReceiver", "Received Alarm for: " + prayerName);
 
             Intent serviceIntent = new Intent(context, AzanPlayerService.class);

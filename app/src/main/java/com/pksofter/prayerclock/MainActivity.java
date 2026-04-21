@@ -153,8 +153,8 @@ public class MainActivity extends AppCompatActivity {
         // User said: "jb bhi app open kren" (Whenever app is opened). 
         // We will call checkRamadanDialog() here.
         // We will call checkRamadanDialog() here.
-        ramadanDialogShown = false; // Reset session flag
-        checkRamadanDialog();
+        startupDialogShown = false; // Reset session flag
+        checkStartupDialog();
         // Interpretation: Every time the app is cold started or brought to foreground?
         // Let's put it in checkFirstRun or a new check method called from onCreate, 
         // but since location/prayer times might take a split second to load, maybe wait for them?
@@ -170,13 +170,13 @@ public class MainActivity extends AppCompatActivity {
     }
     
     // Flag to ensure we don't show it repeatedly if user just rotates screen
-    private boolean ramadanDialogShown = false;
+    private boolean startupDialogShown = false;
     private android.app.Dialog currentRamadanDialog;
     private long lastRamadanDialogShowTime = 0;
     private String firebaseDownloadUrl = "";
 
-    private void checkRamadanDialog() {
-        if (ramadanDialogShown) return; // Only show once per session
+    private void checkStartupDialog() {
+        if (startupDialogShown) return; // Only show once per session
         
         if (currentPrayerTimes != null) {
             // Check if it is Ramadan using robust logic
@@ -184,8 +184,10 @@ public class MainActivity extends AppCompatActivity {
             
             if (isRamadan) {
                 showRamadanDialog();
-                ramadanDialogShown = true;
+            } else {
+                ShareHelper.showShareDialog(this, firebaseDownloadUrl);
             }
+            startupDialogShown = true;
         }
     }
 
@@ -244,15 +246,15 @@ public class MainActivity extends AppCompatActivity {
         
         // Generate QR
         try {
-            String appLink = "https://play.google.com/store/apps/details?id=" + getPackageName();
+            String appLink = prefs.getString("firebase_download_url", "https://pksofter.com");
             if (!firebaseDownloadUrl.isEmpty()) {
                 appLink = firebaseDownloadUrl;
             }
             android.graphics.Bitmap qrBitmap = generateQRCode(appLink);
             ivQr.setImageBitmap(qrBitmap);
             
+            final String shareLink = appLink;
             btnShare.setOnClickListener(v -> {
-                final String shareLink = !firebaseDownloadUrl.isEmpty() ? firebaseDownloadUrl : "https://play.google.com/store/apps/details?id=" + getPackageName();
                 shareRamadanCard(shareableContent, shareLink);
             });
             
@@ -456,6 +458,7 @@ public class MainActivity extends AppCompatActivity {
                         if (snapshot.child("downloadUrl").exists()) {
                             downloadUrl = snapshot.child("downloadUrl").getValue(String.class);
                             firebaseDownloadUrl = downloadUrl; // Update global variable
+                            prefs.edit().putString("firebase_download_url", downloadUrl).apply();
                         }
                         
                         String releaseNotes = "A new version is available.";
@@ -839,13 +842,7 @@ public class MainActivity extends AppCompatActivity {
             
             // Reschedule alarm immediately
             if (currentPrayerTimes != null) {
-                String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
-                TimeZone tz = TimeZone.getTimeZone(tzId);
-                scheduleJamatAlarm((AlarmManager) getSystemService(Context.ALARM_SERVICE), 
-                                  getAdhanTimeByKey(key), 
-                                  key.substring(0, 1).toUpperCase() + key.substring(1), // Capitalize name
-                                  key, 
-                                  tz);
+                AlarmHelper.scheduleAllAlarms(this);
                 Toast.makeText(MainActivity.this, "Jamat Time updated", Toast.LENGTH_SHORT).show();
             }
         });
@@ -947,7 +944,7 @@ public class MainActivity extends AppCompatActivity {
              highlightCurrentPrayer();
              
              // Check for Ramadan Dialog
-             checkRamadanDialog();
+             checkStartupDialog();
         }
     }
 
@@ -994,133 +991,7 @@ public class MainActivity extends AppCompatActivity {
     }
     
     private void scheduleAzanAlarms(PrayerTimes times, TimeZone tz) {
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        if (alarmManager == null) return;
-        
-        Log.d("AzanScheduler", "Scheduling Azan alarms...");
-        
-        // Schedule for each prayer
-        scheduleAlarm(alarmManager, times.fajr, "Fajr", tz);
-        scheduleAlarm(alarmManager, times.dhuhr, "Dhuhr", tz);
-        scheduleAlarm(alarmManager, times.asr, "Asr", tz);
-        scheduleAlarm(alarmManager, times.maghrib, "Maghrib", tz);
-        scheduleAlarm(alarmManager, times.isha, "Isha", tz);
-        
-        // Schedule Jamat notifications
-        scheduleJamatAlarms(times, tz);
-    }
-    
-    private void scheduleJamatAlarms(com.batoulapps.adhan.PrayerTimes times, TimeZone tz) {
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        if (alarmManager == null) return;
-        
-        // Schedule Jamat notifications for each prayer
-        scheduleJamatAlarm(alarmManager, times.fajr, "Fajr", "fajr", tz);
-        scheduleJamatAlarm(alarmManager, times.dhuhr, "Dhuhr", "dhuhr", tz);
-        scheduleJamatAlarm(alarmManager, times.asr, "Asr", "asr", tz);
-        scheduleJamatAlarm(alarmManager, times.maghrib, "Maghrib", "maghrib", tz);
-        scheduleJamatAlarm(alarmManager, times.isha, "Isha", "isha", tz);
-    }
-    
-    private void scheduleJamatAlarm(AlarmManager alarmManager, Date azanTime, String name, String key, TimeZone tz) {
-        if (azanTime == null) return;
-        
-        // Get saved Jamat time from SharedPreferences
-        String savedJamat = prefs.getString("jamat_" + key, null);
-        if (savedJamat == null || savedJamat.isEmpty()) {
-            Log.d("JamatScheduler", name + " jamat time not set, skipping");
-            return;
-        }
-        
-        try {
-            // Parse saved jamat time (HH:mm format)
-            String[] parts = savedJamat.split(":");
-            if (parts.length != 2) return;
-            
-            int hour = Integer.parseInt(parts[0]);
-            int minute = Integer.parseInt(parts[1]);
-            
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeZone(tz);
-            cal.setTime(azanTime);
-            cal.set(Calendar.HOUR_OF_DAY, hour);
-            cal.set(Calendar.MINUTE, minute);
-            cal.set(Calendar.SECOND, 0);
-            
-            // If time has passed today, schedule for tomorrow
-            long now = System.currentTimeMillis();
-            if (cal.getTimeInMillis() <= now) {
-                cal.add(Calendar.DAY_OF_YEAR, 1);
-                Log.d("JamatScheduler", name + " jamat time passed, scheduling for tomorrow");
-            }
-            
-            Intent intent = new Intent(this, JamatReceiver.class);
-            intent.putExtra("prayer_name", name);
-            
-            // Unique ID for jamat (add 5000 to avoid conflict with azan)
-            int id = name.hashCode() + 5000;
-            
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, id, intent, 
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-            sdf.setTimeZone(tz);
-            Log.d("JamatScheduler", "Scheduling " + name + " jamat at " + sdf.format(cal.getTime()));
-            
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                if (alarmManager.canScheduleExactAlarms()) {
-                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
-                } else {
-                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
-                }
-            } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
-            } else {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
-            }
-        } catch (Exception e) {
-            Log.e("JamatScheduler", "Error scheduling " + name + " jamat: " + e.getMessage());
-        }
-    }
-    
-    private void scheduleAlarm(AlarmManager alarmManager, Date time, String name, TimeZone tz) {
-        if (time == null) return;
-        
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeZone(tz);
-        cal.setTime(time);
-        
-        // If time has passed today, schedule for tomorrow
-        long now = System.currentTimeMillis();
-        if (cal.getTimeInMillis() <= now) {
-            cal.add(Calendar.DAY_OF_YEAR, 1);
-            Log.d("AzanScheduler", name + " time has passed, scheduling for tomorrow");
-        }
-
-        Intent intent = new Intent(this, AzanReceiver.class);
-        intent.putExtra("prayer_name", name);
-        
-        // Unique ID for each prayer
-        int id = name.hashCode(); 
-        
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        
-        // Log scheduled time
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        sdf.setTimeZone(tz);
-        Log.d("AzanScheduler", "Scheduling " + name + " at " + sdf.format(cal.getTime()));
-        
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-            if (alarmManager.canScheduleExactAlarms()) {
-                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
-            } else {
-                 alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
-            }
-        } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
-        } else {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
-        }
+        AlarmHelper.scheduleAllAlarms(this);
     }
 
     private void requestLocation() {
@@ -1330,14 +1201,14 @@ public class MainActivity extends AppCompatActivity {
         String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
         TimeZone tz = TimeZone.getTimeZone(tzId);
 
-        updateRow(rowFajr, currentPrayerTimes.fajr, 3, "fajr", tz);
-        updateRow(rowDhuhr, currentPrayerTimes.dhuhr, 3, "dhuhr", tz);
-        updateRow(rowAsr, currentPrayerTimes.asr, 3, "asr", tz);
-        updateRow(rowMaghrib, currentPrayerTimes.maghrib, 3, "maghrib", tz);
-        updateRow(rowIsha, currentPrayerTimes.isha, 3, "isha", tz);
+        updateRow(rowFajr, currentPrayerTimes.fajr, 5, "fajr", tz);
+        updateRow(rowDhuhr, currentPrayerTimes.dhuhr, 5, "dhuhr", tz);
+        updateRow(rowAsr, currentPrayerTimes.asr, 5, "asr", tz);
+        updateRow(rowMaghrib, currentPrayerTimes.maghrib, 5, "maghrib", tz);
+        updateRow(rowIsha, currentPrayerTimes.isha, 5, "isha", tz);
         
         // Jummah default
-        updateRow(rowJummah, currentPrayerTimes.dhuhr, 45, "jummah", tz); 
+        updateRow(rowJummah, currentPrayerTimes.dhuhr, 5, "jummah", tz); 
 
         // Update Ticker
         TextView marqueeText = findViewById(R.id.marqueeText);
@@ -1350,17 +1221,31 @@ public class MainActivity extends AppCompatActivity {
     private void updateRow(View row, Date adhanTime, int jamatOffset, String key, TimeZone tz) {
         TextView tvAdhan = row.findViewById(R.id.tvAdhanTime);
         TextView tvJamat = row.findViewById(R.id.tvJamatTime);
+        TextView btnMuteAzan = row.findViewById(R.id.btnMuteAzan);
         
         tvAdhan.setText(PrayerTimeUtil.formatTime(adhanTime, tz));
         
-        // Check manual override
+        // Mute Azan Logic
+        if (btnMuteAzan != null) {
+            String mutePrefKey = "mute_azan_" + key;
+            boolean isMuted = prefs.getBoolean(mutePrefKey, false);
+            btnMuteAzan.setText(isMuted ? "🔇" : "🔊");
+            
+            btnMuteAzan.setOnClickListener(v -> {
+                boolean currentlyMuted = prefs.getBoolean(mutePrefKey, false);
+                boolean newMutedState = !currentlyMuted;
+                prefs.edit().putBoolean(mutePrefKey, newMutedState).apply();
+                btnMuteAzan.setText(newMutedState ? "🔇" : "🔊");
+                
+                String prayerTitle = key.substring(0, 1).toUpperCase() + key.substring(1);
+                android.widget.Toast.makeText(MainActivity.this, prayerTitle + " Azan " + (newMutedState ? "Muted" : "Unmuted"), android.widget.Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        // Use smart Jamat string helper
         String savedJamat = prefs.getString("jamat_" + key, null);
-        if (savedJamat != null) {
-            tvJamat.setText(PrayerTimeUtil.convertTo12Hour(savedJamat));
-        } else {
-            tvJamat.setText(PrayerTimeUtil.getJamatTime(adhanTime, jamatOffset, tz));
-        }
-        }
+        tvJamat.setText(PrayerTimeUtil.getJamatTimeStr(adhanTime, savedJamat, jamatOffset, tz));
+    }
 
 
     private void startBackgroundService() {
@@ -1392,5 +1277,23 @@ public class MainActivity extends AppCompatActivity {
                     .show();
             }
         }
+    }
+
+    private long backPressedTime;
+    private android.widget.Toast backToast;
+
+    @Override
+    public void onBackPressed() {
+        if (backPressedTime + 2000 > System.currentTimeMillis()) {
+            if (backToast != null) {
+                backToast.cancel();
+            }
+            super.onBackPressed();
+            return;
+        } else {
+            backToast = android.widget.Toast.makeText(getBaseContext(), "Press back again to exit", android.widget.Toast.LENGTH_SHORT);
+            backToast.show();
+        }
+        backPressedTime = System.currentTimeMillis();
     }
 }

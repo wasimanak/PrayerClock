@@ -10,6 +10,8 @@ public class NotificationHelper {
     public static final String CHANNEL_NAME_AZAN = "Azan Notifications";
     public static final String CHANNEL_ID_JAMAT = "jamat_channel";
     public static final String CHANNEL_NAME_JAMAT = "Jamat Notifications";
+    public static final String CHANNEL_ID_REMINDER = "reminder_channel";
+    public static final String CHANNEL_NAME_REMINDER = "Tasbih Reminders";
 
     public static void createNotificationChannel(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -29,12 +31,20 @@ public class NotificationHelper {
                     NotificationManager.IMPORTANCE_HIGH
             );
             jamatChannel.setDescription("Notifications for Jamat Times");
-            // Default sound is implied by not setting null, but we can be explicit or leave defaults
+
+            // Reminder Channel
+            NotificationChannel reminderChannel = new NotificationChannel(
+                    CHANNEL_ID_REMINDER,
+                    CHANNEL_NAME_REMINDER,
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            reminderChannel.setDescription("Daily reminders for prayers and Tasbih");
             
             NotificationManager manager = context.getSystemService(NotificationManager.class);
             if (manager != null) {
                 manager.createNotificationChannel(azanChannel);
                 manager.createNotificationChannel(jamatChannel);
+                manager.createNotificationChannel(reminderChannel);
             }
         }
     }

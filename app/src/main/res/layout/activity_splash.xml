@@ -37,25 +37,28 @@
             android:shadowDy="4"
             android:shadowRadius="8" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:alpha="0.8"
-            android:text="Powered by: Alpha4Technologies"
-            android:textColor="@color/text_primary"
-            android:textSize="12sp"
-            android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.2"
-            android:textAllCaps="true" />
-
     </LinearLayout>
 
     <ProgressBar
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:layout_marginBottom="48dp"
+        android:layout_marginBottom="64dp"
         android:indeterminateTint="@color/gold_accent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:alpha="0.8"
+        android:text="Powered by: Manak Builder"
+        android:textColor="@color/text_primary"
+        android:textSize="10sp"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.2"
+        android:textAllCaps="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

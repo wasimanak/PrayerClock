@@ -29,7 +29,7 @@
             android:text="Tasbih Name"
             android:textSize="20sp"
             android:textColor="#FFFFFF"
-            android:fontFamily="sans-serif-medium"
+            android:fontFamily="@font/sakkal"
             android:maxLines="2"
             android:ellipsize="end"
             android:gravity="left|center_vertical"

@@ -46,20 +46,37 @@
          Let's make them uniform.
     -->
 
-    <TextView
-        android:id="@+id/tvAdhanTime"
+    <!-- Adhan Column Container -->
+    <RelativeLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:fontFamily="sans-serif-medium"
-        android:text="05:30"
-        android:textColor="@color/text_primary"
-        app:autoSizeTextType="uniform"
-        app:autoSizeMinTextSize="14sp"
-        app:autoSizeMaxTextSize="22sp"
-        android:maxLines="1"
-        />
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/btnMuteAzan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="🔊"
+            android:textSize="16sp"
+            android:paddingStart="4dp"
+            android:paddingEnd="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/tvAdhanTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:fontFamily="sans-serif-medium"
+            android:text="05:30"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:maxLines="1" />
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/tvJamatTime"

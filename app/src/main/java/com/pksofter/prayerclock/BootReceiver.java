@@ -18,6 +18,9 @@ public class BootReceiver extends BroadcastReceiver {
             } else {
                 context.startService(serviceIntent);
             }
+
+            // Reschedule all alarms
+            AlarmHelper.scheduleAllAlarms(context);
         }
     }
 }
