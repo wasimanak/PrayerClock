@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "488531287280",
-    "project_id": "prayer-clock-20663",
-    "storage_bucket": "prayer-clock-20663.firebasestorage.app"
+    "project_number": "214368477911",
+    "project_id": "prayerclock-56536",
+    "storage_bucket": "prayerclock-56536.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:488531287280:android:dd34acd6bfdc37d2543635",
+        "mobilesdk_app_id": "1:214368477911:android:58243918e9bd455e050692",
         "android_client_info": {
-          "package_name": "com.pksofter.prayerclock"
+          "package_name": "com.alpha4technologies.prayerclock"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDk0d2o3RAS3ffDVNh7U3NfWIAhwUUZhGg"
+          "current_key": "AIzaSyDc5QDLzW4qacJ0a5qudtl-v8uqHTzMNbA"
         }
       ],
       "services": {
