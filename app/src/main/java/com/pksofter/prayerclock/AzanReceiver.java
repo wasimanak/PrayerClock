@@ -49,6 +49,12 @@ public class AzanReceiver extends BroadcastReceiver {
             
             // Schedule next alarms as a safeguard
             AlarmHelper.scheduleAllAlarms(context);
+
+            // Open the app so the user sees the prayer time screen
+            Intent launchIntent = new Intent(context, MainActivity.class);
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            launchIntent.putExtra("prayer_name", prayerName);
+            context.startActivity(launchIntent);
             
             if (wakeLock != null && wakeLock.isHeld()) wakeLock.release();
         }

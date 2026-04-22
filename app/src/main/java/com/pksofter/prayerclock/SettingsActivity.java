@@ -9,6 +9,9 @@ import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ImageView;
+import android.content.Intent;
+import android.net.Uri;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Build;
@@ -28,6 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
     private android.widget.LinearLayout llManualSearch;
     private android.widget.EditText etSearchQuery;
     private Button btnSearch;
+    private Button btnEditJamatTimes;
     
     private TextView tvCurrentLocationInfo;
     
@@ -78,6 +82,7 @@ public class SettingsActivity extends AppCompatActivity {
         llManualSearch = findViewById(R.id.llManualSearch);
         etSearchQuery = findViewById(R.id.etSearchQuery);
         btnSearch = findViewById(R.id.btnSearch);
+        btnEditJamatTimes = findViewById(R.id.btnEditJamatTimes);
         
         tvCurrentLocationInfo = findViewById(R.id.tvCurrentLocationInfo);
     }
@@ -136,6 +141,38 @@ public class SettingsActivity extends AppCompatActivity {
              } else {
                  Toast.makeText(this, "Please enter a city name", Toast.LENGTH_SHORT).show();
              }
+        });
+        
+        btnEditJamatTimes.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(this, JamatSettingsActivity.class);
+            startActivity(intent);
+        });
+        
+        ImageView btnFacebook = findViewById(R.id.btnFacebook);
+        ImageView btnInstagram = findViewById(R.id.btnInstagram);
+        ImageView btnWhatsapp = findViewById(R.id.btnWhatsapp);
+
+        btnFacebook.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("https://facebook.com/wasimalik0"));
+            startActivity(intent);
+        });
+
+        btnInstagram.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("https://instagram.com/cediscoveries"));
+            startActivity(intent);
+        });
+
+        btnWhatsapp.setOnClickListener(v -> {
+            try {
+                String number = "+923477442050";
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("https://wa.me/" + number));
+                startActivity(intent);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
     

@@ -51,6 +51,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 public class MainActivity extends AppCompatActivity {
 
     private TextView tvCurrentTime, tvDate, tvIslamicDate, tvCity, tvTemp, tvLastTime;
@@ -120,8 +124,15 @@ public class MainActivity extends AppCompatActivity {
         initViews();
         setupTicker();
         startClock();
-        checkFirstRun();
         initFirebase(); // Track user and check update
+        
+        // Initialize AdMob
+        MobileAds.initialize(this, initializationStatus -> {});
+        AdView mAdView = findViewById(R.id.adView);
+        if (mAdView != null) {
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
         
         // Request permissions with slight delay to ensure Activity is ready
         new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -525,56 +536,6 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
-    private void checkFirstRun() {
-        // Daily Check Logic
-        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        String lastRunDate = prefs.getString("last_tutorial_date", "");
-        
-        if (!today.equals(lastRunDate)) {
-            showTutorialDialog(today);
-        }
-    }
-    
-    private void showTutorialDialog(String todayDate) {
-        android.app.Dialog dialog = new android.app.Dialog(this);
-        dialog.setContentView(R.layout.dialog_tutorial);
-        dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
-        dialog.setCancelable(false); // Force user to click button
-        
-        // Contact Buttons
-        Button btnWhatsapp = dialog.findViewById(R.id.btnWhatsapp);
-        Button btnEmail = dialog.findViewById(R.id.btnEmail);
-        
-        btnWhatsapp.setOnClickListener(v -> {
-            try {
-                // Replace with actual number
-                String number = "+923477442050";
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(android.net.Uri.parse("https://wa.me/" + number));
-                startActivity(intent);
-            } catch (Exception e) {
-                Toast.makeText(this, "WhatsApp not installed", Toast.LENGTH_SHORT).show();
-            }
-        });
-        
-        btnEmail.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_SENDTO);
-            intent.setData(android.net.Uri.parse("mailto:waasimalik@gmail.com")); // Replace with actual email
-            intent.putExtra(Intent.EXTRA_SUBJECT, "Prayer Clock Feedback");
-            startActivity(intent);
-        });
-        
-        android.widget.Button btnUnderstood = dialog.findViewById(R.id.btnUnderstood);
-        btnUnderstood.setOnClickListener(v -> {
-            // Save today's date so it doesn't show again today
-            prefs.edit().putString("last_tutorial_date", todayDate).apply();
-            dialog.dismiss();
-
-        });
-        
-        dialog.show();
-        dialog.getWindow().setLayout(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-    }
 
     private void initViews() {
         tvCurrentTime = findViewById(R.id.tvCurrentTime);
