@@ -40,7 +40,10 @@ public class AlarmHelper {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (alarmManager == null) return;
         
-        // 1. Azan Alarms
+        // 0. Start Watchdog to ensure survival
+        WorkManagerHelper.scheduleWatchdog(context);
+        
+        // 1. Azan Alarms via AlarmManager (Deep Sleep Proof)
         scheduleAzanAlarm(context, alarmManager, times.fajr, "Fajr", tz);
         scheduleAzanAlarm(context, alarmManager, times.dhuhr, "Dhuhr", tz);
         scheduleAzanAlarm(context, alarmManager, times.asr, "Asr", tz);
@@ -128,14 +131,14 @@ public class AlarmHelper {
     private static void setAlarm(AlarmManager alarmManager, long timeMillis, PendingIntent pendingIntent) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             if (alarmManager.canScheduleExactAlarms()) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeMillis, pendingIntent);
+                AlarmManager.AlarmClockInfo info = new AlarmManager.AlarmClockInfo(timeMillis, pendingIntent);
+                alarmManager.setAlarmClock(info, pendingIntent);
             } else {
                 alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeMillis, pendingIntent);
             }
-        } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeMillis, pendingIntent);
         } else {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, timeMillis, pendingIntent);
+            AlarmManager.AlarmClockInfo info = new AlarmManager.AlarmClockInfo(timeMillis, pendingIntent);
+            alarmManager.setAlarmClock(info, pendingIntent);
         }
     }
 }

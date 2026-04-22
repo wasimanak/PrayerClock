@@ -51,6 +51,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-database'
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     implementation libs.zxing
+    implementation libs.work.runtime
 }
 
 apply plugin: 'com.google.gms.google-services'
