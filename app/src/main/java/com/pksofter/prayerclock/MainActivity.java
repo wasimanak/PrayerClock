@@ -75,9 +75,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Match status bar to theme
+        // --- Screen Wake Flags: ensures app opens on lock screen during Azan ---
+        Window window = getWindow();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            // API 27+ modern API
+            setShowWhenLocked(true);
+            setTurnScreenOn(true);
+        } else {
+            window.addFlags(
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+            );
+        }
+        
+        // Status bar color
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(android.graphics.Color.parseColor("#1E293B"));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -92,11 +105,6 @@ public class MainActivity extends AppCompatActivity {
         
         // Start Persistent Service
         startBackgroundService();
-        
-        // Check Battery Optimizations
-        checkBatteryOptimization();
-
-        setContentView(R.layout.activity_main);
         
         prefs = getSharedPreferences("PrayerClockPrefs", MODE_PRIVATE);
         
@@ -137,7 +145,26 @@ public class MainActivity extends AppCompatActivity {
         // Request permissions with slight delay to ensure Activity is ready
         new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> {
             requestPermissionsOnStartup();
-        }, 500); // 500ms delay
+            // Android 14+: request USE_FULL_SCREEN_INTENT permission
+            if (Build.VERSION.SDK_INT >= 34) {
+                android.app.NotificationManager nm = getSystemService(android.app.NotificationManager.class);
+                if (nm != null && !nm.canUseFullScreenIntent()) {
+                    Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT);
+                    intent.setData(android.net.Uri.parse("package:" + getPackageName()));
+                    startActivity(intent);
+                }
+            }
+            // Request SYSTEM_ALERT_WINDOW (Draw over apps) — needed for app to open on Azan
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (!android.provider.Settings.canDrawOverlays(this)) {
+                    Intent overlayIntent = new Intent(
+                        android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        android.net.Uri.parse("package:" + getPackageName())
+                    );
+                    startActivity(overlayIntent);
+                }
+            }
+        }, 800);
     }
     
     @Override
@@ -156,6 +183,9 @@ public class MainActivity extends AppCompatActivity {
         if (isManual || hasPerm) {
              requestLocation();
         }
+
+        // Always check battery optimization — show dialog until user allows
+        checkBatteryOptimization();
         
         // Check Ramadan Dialog
         // We do this here so it shows up when app is opened/resumed
@@ -187,17 +217,23 @@ public class MainActivity extends AppCompatActivity {
     private String firebaseDownloadUrl = "";
 
     private void checkStartupDialog() {
-        if (startupDialogShown) return; // Only show once per session
-        
+        if (startupDialogShown) return; // Already shown this session
+
+        // Only show once per day — compare stored date with today
+        String today = new java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.getDefault())
+                .format(new java.util.Date());
+        String lastShown = prefs.getString("startup_dialog_date", "");
+        if (today.equals(lastShown)) return; // Already shown today
+
         if (currentPrayerTimes != null) {
-            // Check if it is Ramadan using robust logic
             boolean isRamadan = PrayerTimeUtil.isRamadan(currentPrayerTimes, cachedLat, cachedLon);
-            
             if (isRamadan) {
                 showRamadanDialog();
             } else {
                 ShareHelper.showShareDialog(this, firebaseDownloadUrl);
             }
+            // Save today's date so dialog won't show again today
+            prefs.edit().putString("startup_dialog_date", today).apply();
             startupDialogShown = true;
         }
     }
@@ -1219,26 +1255,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkBatteryOptimization() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            android.os.PowerManager pm = (android.os.PowerManager) getSystemService(Context.POWER_SERVICE);
-            if (pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName())) {
-                new android.app.AlertDialog.Builder(this)
-                    .setTitle("Background Activity")
-                    .setMessage("To ensure Azan plays on time, please allow the app to run in the background (Ignore Battery Optimizations).")
-                    .setPositiveButton("Allow", (dialog, which) -> {
-                        try {
-                            Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                            intent.setData(Uri.parse("package:" + getPackageName()));
-                            startActivity(intent);
-                        } catch (Exception e) {
-                            Toast.makeText(this, "Could not open settings", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
-            }
-        }
+        BatteryOptimizationHelper.checkAndRequestOptimization(this);
     }
+
 
     private long backPressedTime;
     private android.widget.Toast backToast;

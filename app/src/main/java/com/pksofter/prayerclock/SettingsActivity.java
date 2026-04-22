@@ -151,6 +151,14 @@ public class SettingsActivity extends AppCompatActivity {
         ImageView btnFacebook = findViewById(R.id.btnFacebook);
         ImageView btnInstagram = findViewById(R.id.btnInstagram);
         ImageView btnWhatsapp = findViewById(R.id.btnWhatsapp);
+        TextView tvPrivacyPolicy = findViewById(R.id.tvPrivacyPolicy);
+        tvPrivacyPolicy.setPaintFlags(tvPrivacyPolicy.getPaintFlags() | android.graphics.Paint.UNDERLINE_TEXT_FLAG);
+
+        tvPrivacyPolicy.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("https://wasimanak.github.io/prayerclock-privacy-policy"));
+            startActivity(intent);
+        });
 
         btnFacebook.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_VIEW);

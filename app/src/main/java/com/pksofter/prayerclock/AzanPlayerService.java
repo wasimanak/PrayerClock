@@ -59,7 +59,8 @@ public class AzanPlayerService extends Service {
                 .setContentText("حَیَّ عَلَی الصَّلٰوةِ")
                 .setPriority(NotificationCompat.PRIORITY_MAX) // High priority
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
-                .setFullScreenIntent(fullScreenPendingIntent, true) // Critical for Android 10+
+                .setFullScreenIntent(fullScreenPendingIntent, true)
+                .setContentIntent(fullScreenPendingIntent)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setOngoing(true)
                 .setAutoCancel(false);
@@ -157,3 +158,4 @@ public class AzanPlayerService extends Service {
         return null;
     }
 }
+

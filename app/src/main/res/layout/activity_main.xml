@@ -248,7 +248,7 @@
             android:layout_marginTop="4dp"
             android:layout_marginBottom="8dp"
             app:adSize="BANNER"
-            app:adUnitId="ca-app-pub-3940256099942544/6300978111" />
+            app:adUnitId="ca-app-pub-9405635112522294/1849593313" />
 
         <!-- Custom Professional Bottom Bar -->
         <include
