@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.androidApplication)
     id 'com.google.gms.google-services'
+    alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -49,7 +51,10 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:33.1.2')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-database'
-    implementation "androidx.datastore:datastore-preferences:1.0.0"
+    implementation 'com.google.firebase:firebase-crashlytics'
+    implementation "androidx.datastore:datastore-preferences:1.1.1"
+    implementation "androidx.datastore:datastore:1.1.1"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.22"
     implementation libs.zxing
     implementation libs.work.runtime
     implementation 'com.google.android.gms:play-services-ads:23.0.0'

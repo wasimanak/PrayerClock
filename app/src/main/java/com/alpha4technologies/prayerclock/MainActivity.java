@@ -54,11 +54,14 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView tvCurrentTime, tvDate, tvIslamicDate, tvCity, tvTemp, tvLastTime;
     private View rowFajr, rowDhuhr, rowAsr, rowMaghrib, rowIsha, rowJummah;
+    private FirebaseAnalytics mFirebaseAnalytics;
     private NavigationHelper navHelper;
 
     private FusedLocationProviderClient fusedLocationClient;
@@ -103,8 +106,6 @@ public class MainActivity extends AppCompatActivity {
         
         setContentView(R.layout.activity_main);
         
-        // Start Persistent Service
-        startBackgroundService();
         
         prefs = getSharedPreferences("PrayerClockPrefs", MODE_PRIVATE);
         
@@ -134,13 +135,8 @@ public class MainActivity extends AppCompatActivity {
         startClock();
         initFirebase(); // Track user and check update
         
-        // Initialize AdMob
+        // Initialize AdMob (Ad ID will be loaded from Firebase)
         MobileAds.initialize(this, initializationStatus -> {});
-        AdView mAdView = findViewById(R.id.adView);
-        if (mAdView != null) {
-            AdRequest adRequest = new AdRequest.Builder().build();
-            mAdView.loadAd(adRequest);
-        }
         
         // Request permissions with slight delay to ensure Activity is ready
         new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -154,24 +150,20 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             }
-            // Request SYSTEM_ALERT_WINDOW (Draw over apps) — needed for app to open on Azan
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (!android.provider.Settings.canDrawOverlays(this)) {
-                    Intent overlayIntent = new Intent(
-                        android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        android.net.Uri.parse("package:" + getPackageName())
-                    );
-                    startActivity(overlayIntent);
-                }
-            }
+            // Mandatory permissions are handled in onResume to catch changes
         }, 800);
     }
     
     @Override
     protected void onResume() {
         super.onResume();
+        
+        // Use a small delay to ensure the activity is ready to show dialogs
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            checkMandatoryPermissions();
+        }, 1000);
+
         // Refresh data when returning from Settings
-        // Only request if permission granted OR manual mode, to avoid conflict with Startup Permission logic
         boolean isManual = prefs.getBoolean("manual_location", false);
         boolean hasPerm = false;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
@@ -183,23 +175,10 @@ public class MainActivity extends AppCompatActivity {
         if (isManual || hasPerm) {
              requestLocation();
         }
-
-        // Always check battery optimization — show dialog until user allows
-        checkBatteryOptimization();
         
-        // Check Ramadan Dialog
-        // We do this here so it shows up when app is opened/resumed
-        // But checking 'isRamadan' ensures it only shows in Ramadan
-        // And we can track 'ramadan_dialog_shown_session' to avoid spamming on every resume?
-        // User said: "jb bhi app open kren" (Whenever app is opened). 
-        // We will call checkRamadanDialog() here.
-        // We will call checkRamadanDialog() here.
-        startupDialogShown = false; // Reset session flag
+        // Check Startup Dialog (Ramadan/Tutorial etc)
+        startupDialogShown = false; 
         checkStartupDialog();
-        // Interpretation: Every time the app is cold started or brought to foreground?
-        // Let's put it in checkFirstRun or a new check method called from onCreate, 
-        // but since location/prayer times might take a split second to load, maybe wait for them?
-        // Better: trigger it once we have prayer times.
     }
 
     @Override
@@ -468,6 +447,68 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void checkMandatoryPermissions() {
+        if (isFinishing() || isDestroyed()) return;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // 1. Check Overlay Permission (Critical for Android 10+)
+            if (!Settings.canDrawOverlays(this)) {
+                Toast.makeText(this, "Overlay Permission Required", Toast.LENGTH_LONG).show();
+                showPermissionDialog("Overlay Permission Required", 
+                    "This app needs 'Display over other apps' permission to open automatically during Azan time. Without this, the Azan screen will not appear when the phone is locked. Please allow it for 'PrayerClock' in the next screen.",
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+                return;
+            }
+
+            // 2. Check Battery Optimization
+            if (!BatteryOptimizationHelper.isIgnoringBatteryOptimizations(this)) {
+                Toast.makeText(this, "Battery Optimization Setting Required", Toast.LENGTH_LONG).show();
+                showPermissionDialog("Battery Optimization Required", 
+                    "To ensure the Azan sounds exactly on time, the app must be allowed to run without battery restrictions. Please select 'No restrictions' or 'Allow' for 'PrayerClock' in the next screen.",
+                    Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                return;
+            }
+
+            // 3. Check Notification Permission (Android 13+)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    showPermissionDialog("Notifications Required", 
+                        "This app needs notification permission to play Azan and show prayer alerts. Please allow it in the next screen.",
+                        Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                    return;
+                }
+            }
+        }
+    }
+
+    private void showPermissionDialog(String title, String message, String action) {
+        if (isFinishing() || isDestroyed()) return;
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setCancelable(false)
+            .setPositiveButton("Grant Permission", (dialog, which) -> {
+                try {
+                    Intent intent = new Intent(action);
+                    if (Settings.ACTION_APP_NOTIFICATION_SETTINGS.equals(action)) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+                        } else {
+                            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                            intent.setData(Uri.parse("package:" + getPackageName()));
+                        }
+                    } else {
+                        intent.setData(Uri.parse("package:" + getPackageName()));
+                    }
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Toast.makeText(this, "Could not open settings. Please grant " + title + " manually in App Info.", Toast.LENGTH_LONG).show();
+                }
+            })
+            .show();
+    }
+
     private void initFirebase() {
         try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -477,6 +518,12 @@ public class MainActivity extends AppCompatActivity {
             String androidId = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
             String currentVersion = BuildConfig.VERSION_NAME;
             int versionCode = BuildConfig.VERSION_CODE;
+            
+            // Initialize Analytics and Crashlytics
+            mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true);
+            FirebaseCrashlytics.getInstance().setUserId(androidId);
+            FirebaseCrashlytics.getInstance().log("App Started - ID: " + androidId);
             
             DatabaseReference myRef = usersRef.child(androidId);
             myRef.child("last_active").setValue(new Date().toString());
@@ -522,6 +569,26 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onCancelled(DatabaseError error) {
                 }
+            });
+
+            // 3. Fetch Ad IDs
+            database.getReference("adSettings").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        boolean adsEnabled = true;
+                        if (snapshot.child("ads_enabled").exists()) {
+                            adsEnabled = (Boolean) snapshot.child("ads_enabled").getValue();
+                        }
+                        
+                        if (adsEnabled && snapshot.child("banner_ad_id").exists()) {
+                            String adId = snapshot.child("banner_ad_id").getValue(String.class);
+                            loadBannerAd(adId);
+                        }
+                    }
+                }
+                @Override
+                public void onCancelled(DatabaseError error) {}
             });
             
         } catch (Exception e) {
@@ -1245,14 +1312,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void startBackgroundService() {
-        Intent serviceIntent = new Intent(this, PrayerBackgroundService.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent);
-        } else {
-            startService(serviceIntent);
-        }
-    }
 
     private void checkBatteryOptimization() {
         BatteryOptimizationHelper.checkAndRequestOptimization(this);
@@ -1275,5 +1334,27 @@ public class MainActivity extends AppCompatActivity {
             backToast.show();
         }
         backPressedTime = System.currentTimeMillis();
+    }
+
+    private void loadBannerAd(String adUnitId) {
+        if (adUnitId == null || adUnitId.isEmpty()) return;
+        
+        try {
+            android.widget.FrameLayout adContainer = findViewById(R.id.adContainer);
+            if (adContainer == null) return;
+            
+            com.google.android.gms.ads.AdView adView = new com.google.android.gms.ads.AdView(this);
+            adUnitId = adUnitId.trim();
+            adView.setAdUnitId(adUnitId);
+            adView.setAdSize(com.google.android.gms.ads.AdSize.BANNER);
+            
+            adContainer.removeAllViews();
+            adContainer.addView(adView);
+            
+            com.google.android.gms.ads.AdRequest adRequest = new com.google.android.gms.ads.AdRequest.Builder().build();
+            adView.loadAd(adRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

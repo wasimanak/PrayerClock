@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:text="Hanafi (Late Asr)"
             android:textColor="@color/text_primary"
-            android:buttonTint="@color/emerald_500"
+            android:buttonTint="@color/gold_accent"
             android:textSize="16sp"
             android:padding="8dp"/>
 
@@ -53,7 +53,7 @@
             android:layout_height="wrap_content"
             android:text="Shafi/Standard (Early Asr)"
             android:textColor="@color/text_primary"
-            android:buttonTint="@color/emerald_500"
+            android:buttonTint="@color/gold_accent"
             android:textSize="16sp"
             android:padding="8dp"/>
     </RadioGroup>

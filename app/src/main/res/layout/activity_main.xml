@@ -4,8 +4,7 @@
     android:id="@+id/root_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_gradient_main"
-    android:keepScreenOn="true">
+    android:background="@drawable/bg_gradient_main">
 
     <ScrollView
         android:layout_width="0dp"
@@ -33,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
-            android:text="Mon, 01 Jan 2024"
+            android:text="Mon, 01 Jan 2026"
             android:textColor="@color/gold_accent"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -239,16 +238,13 @@
             android:textColor="@color/gold_accent"
             android:textSize="22sp" />
 
-        <!-- AdMob Banner Ad -->
-        <com.google.android.gms.ads.AdView
-            android:id="@+id/adView"
-            android:layout_width="wrap_content"
+        <!-- AdMob Banner Ad Container (Loaded via Firebase) -->
+        <FrameLayout
+            android:id="@+id/adContainer"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
             android:layout_marginTop="4dp"
-            android:layout_marginBottom="8dp"
-            app:adSize="BANNER"
-            app:adUnitId="ca-app-pub-9405635112522294/1849593313" />
+            android:layout_marginBottom="8dp" />
 
         <!-- Custom Professional Bottom Bar -->
         <include

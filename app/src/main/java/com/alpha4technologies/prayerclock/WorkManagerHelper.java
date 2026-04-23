@@ -13,20 +13,20 @@ public class WorkManagerHelper {
     public static final String WATCHDOG_WORK_NAME = "alarm_watchdog_work";
 
     public static void scheduleWatchdog(Context context) {
-        // Run every 6 hours to ensure alarms survive deep sleep, force stops, and reboots
+        // Run every 4 hours to ensure alarms survive deep sleep, force stops, and reboots
         PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(
                 AlarmWatchdogWorker.class,
-                6, TimeUnit.HOURS)
+                4, TimeUnit.HOURS)
                 .addTag("alarm_watchdog")
                 .build();
 
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 WATCHDOG_WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP, // KEEP ensures it doesn't reset the timer if already scheduled
+                ExistingPeriodicWorkPolicy.REPLACE, // REPLACE ensures the new 4-hour interval is applied
                 workRequest
         );
 
-        Log.d("WorkManagerHelper", "Scheduled Periodic Alarm Watchdog (every 6 hours)");
+        Log.d("WorkManagerHelper", "Scheduled Periodic Alarm Watchdog (every 4 hours)");
     }
     
     public static void cancelWatchdog(Context context) {

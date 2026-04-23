@@ -385,4 +385,50 @@ public class PrayerTimeUtil {
         
         return String.format(Locale.getDefault(), "%d:%02d", hour24, minute);
     }
+
+    public static String getNextPrayerInfo(android.content.Context context) {
+        android.content.SharedPreferences prefs = context.getSharedPreferences("PrayerClockPrefs", android.content.Context.MODE_PRIVATE);
+        String latStr = prefs.getString("current_lat", null);
+        String lonStr = prefs.getString("current_lon", null);
+        if (latStr == null || lonStr == null) return "اذان کا انتظار ہے۔۔۔";
+
+        try {
+            double lat = Double.parseDouble(latStr);
+            double lon = Double.parseDouble(lonStr);
+            String madhabStr = prefs.getString("madhab", "HANAFI");
+            Madhab madhab = madhabStr.equals("SHAFI") ? Madhab.SHAFI : Madhab.HANAFI;
+            
+            PrayerTimes times = getPrayerTimes(lat, lon, madhab);
+            com.batoulapps.adhan.Prayer next = times.nextPrayer();
+            
+            if (next == com.batoulapps.adhan.Prayer.NONE) {
+                // If it is after Isha, next is tomorrow's Fajr
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.DAY_OF_YEAR, 1);
+                times = getPrayerTimes(lat, lon, cal.getTime(), madhab);
+                next = com.batoulapps.adhan.Prayer.FAJR;
+            }
+
+            Date nextTime = times.timeForPrayer(next);
+            String name = getPrayerNameUrdu(next);
+            
+            String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
+            TimeZone tz = TimeZone.getTimeZone(tzId);
+            
+            return "اگلی نماز: " + name + " (" + formatTime(nextTime, tz) + ")";
+        } catch (Exception e) {
+            return "اذان کا انتظار ہے۔۔۔";
+        }
+    }
+
+    private static String getPrayerNameUrdu(com.batoulapps.adhan.Prayer prayer) {
+        switch (prayer) {
+            case FAJR: return "فجر";
+            case DHUHR: return "ظہر";
+            case ASR: return "عصر";
+            case MAGHRIB: return "مغرب";
+            case ISHA: return "عشاء";
+            default: return "";
+        }
+    }
 }

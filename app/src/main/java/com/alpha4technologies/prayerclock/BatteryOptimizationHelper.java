@@ -12,15 +12,15 @@ public class BatteryOptimizationHelper {
 
     private static final String TAG = "BatteryOptHelper";
 
-    public static void checkAndRequestOptimization(Context context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
-
+    public static boolean isIgnoringBatteryOptimizations(Context context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return true;
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        if (pm == null || pm.isIgnoringBatteryOptimizations(context.getPackageName())) {
-            return; // Already granted
-        }
+        return pm != null && pm.isIgnoringBatteryOptimizations(context.getPackageName());
+    }
 
-        // Directly open system battery optimization dialog — no custom dialog needed
+    public static void checkAndRequestOptimization(Context context) {
+        if (isIgnoringBatteryOptimizations(context)) return;
+
         try {
             Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
             intent.setData(Uri.parse("package:" + context.getPackageName()));

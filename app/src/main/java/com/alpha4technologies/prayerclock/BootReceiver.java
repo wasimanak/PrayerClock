@@ -21,13 +21,6 @@ public class BootReceiver extends BroadcastReceiver {
             // Reschedule all prayer alarms
             AlarmHelper.scheduleAllAlarms(context);
 
-            // Start background service
-            Intent serviceIntent = new Intent(context, PrayerBackgroundService.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(serviceIntent);
-            } else {
-                context.startService(serviceIntent);
-            }
         }
     }
 }

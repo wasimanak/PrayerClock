@@ -99,6 +99,15 @@
             
     </RelativeLayout>
 
+    <!-- AdMob Banner Ad Container (Loaded via Firebase) -->
+    <FrameLayout
+        android:id="@+id/adContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/nav_include"
+        android:layout_marginBottom="8dp" />
+
     <!-- Bottom nav include -->
     <include
         android:id="@+id/nav_include"

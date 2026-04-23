@@ -13,6 +13,9 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -28,6 +31,7 @@ public class TasbihCounterActivity extends AppCompatActivity {
 
     TextView tvName, tvCount, btnSoundToggle;
     View root;
+    private AdView mAdView;
 
     TasbihModel tasbih;
     SharedPreferences prefs;
@@ -115,6 +119,29 @@ public class TasbihCounterActivity extends AppCompatActivity {
             }
             return true;
         });
+
+        // Initialize Ads (Loaded from Firebase)
+        MobileAds.initialize(this, initializationStatus -> {});
+        
+        com.google.firebase.database.FirebaseDatabase.getInstance().getReference("adSettings")
+            .addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
+                @Override
+                public void onDataChange(com.google.firebase.database.DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        boolean adsEnabled = true;
+                        if (snapshot.child("ads_enabled").exists()) {
+                            adsEnabled = (Boolean) snapshot.child("ads_enabled").getValue();
+                        }
+                        
+                        if (adsEnabled && snapshot.child("banner_ad_id").exists()) {
+                            String adId = snapshot.child("banner_ad_id").getValue(String.class);
+                            loadBannerAd(adId);
+                        }
+                    }
+                }
+                @Override
+                public void onCancelled(com.google.firebase.database.DatabaseError error) {}
+            });
     }
     
     private void playSound() {
@@ -178,5 +205,26 @@ public class TasbihCounterActivity extends AppCompatActivity {
         startActivity(intent);
         overridePendingTransition(0, 0);
         finish();
+    }
+
+    private void loadBannerAd(String adUnitId) {
+        if (adUnitId == null || adUnitId.isEmpty()) return;
+        
+        try {
+            android.widget.FrameLayout adContainer = findViewById(R.id.adContainer);
+            if (adContainer == null) return;
+            
+            com.google.android.gms.ads.AdView adView = new com.google.android.gms.ads.AdView(this);
+            adView.setAdUnitId(adUnitId);
+            adView.setAdSize(com.google.android.gms.ads.AdSize.BANNER);
+            
+            adContainer.removeAllViews();
+            adContainer.addView(adView);
+            
+            com.google.android.gms.ads.AdRequest adRequest = new com.google.android.gms.ads.AdRequest.Builder().build();
+            adView.loadAd(adRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
