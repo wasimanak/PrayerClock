@@ -63,6 +63,12 @@ public class MainActivity extends AppCompatActivity {
     private View rowFajr, rowDhuhr, rowAsr, rowMaghrib, rowIsha, rowJummah;
     private FirebaseAnalytics mFirebaseAnalytics;
     private NavigationHelper navHelper;
+    private PrayerTimes currentPrayerTimes;
+    
+    // Formatters to avoid allocations in updateTime()
+    private final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm:ss", Locale.getDefault());
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault());
+    private long lastIslamicDateUpdateSec = -1;
 
     private FusedLocationProviderClient fusedLocationClient;
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -937,78 +943,45 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 updateTime();
-                // checkAdhanPlay(); // Removed
                 handler.postDelayed(this, 1000);
             }
         };
         handler.post(timeRunnable);
     }
 
-    // Stores prayer times to check for audio
-    private PrayerTimes currentPrayerTimes;
-
     private void updateTime() {
-        SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm:ss", Locale.getDefault());
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault()); 
-        Date now = new Date();
+        long nowMs = System.currentTimeMillis();
+        long nowSec = nowMs / 1000;
+        Date now = new Date(nowMs);
 
         tvCurrentTime.setText(timeFormat.format(now));
         tvDate.setText(dateFormat.format(now));
         
         if (currentPrayerTimes != null) {
-             // Update Islamic Date
-             String islamicDate = PrayerTimeUtil.getRamadanDateString(currentPrayerTimes, cachedLat, cachedLon);
-             tvIslamicDate.setText(islamicDate);
+             // Update Islamic Date & Prayer info once every 10 seconds or on change
+             // to reduce CPU usage. Clock is updated every second above.
+             if (nowSec % 10 == 0 || lastIslamicDateUpdateSec == -1) {
+                 lastIslamicDateUpdateSec = nowSec;
+                 
+                 String islamicDate = PrayerTimeUtil.getRamadanDateString(currentPrayerTimes, cachedLat, cachedLon);
+                 tvIslamicDate.setText(islamicDate);
 
-             String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
-             TimeZone tz = TimeZone.getTimeZone(tzId);
-             
-             // Get Location Coords for Date Correction (Ticker)
-             double lat = 0;
-             double lon = 0;
-             try {
-                lat = Double.parseDouble(prefs.getString("current_lat", "0"));
-                lon = Double.parseDouble(prefs.getString("current_lon", "0"));
-             } catch (Exception e) { e.printStackTrace(); }
-             
-             String remainingText = PrayerTimeUtil.getRemainingTimeUrdu(currentPrayerTimes, tz);
-             // We need to update getRemainingTimeUrdu? No, generateUrduTicker logic is separate or used here? 
-             // Wait, generateUrduTicker is NOT called here?
-             // Ah, generateUrduTicker corresponds to the TICKER text usually. 
-             // Let me check if 'remainingText' is what I need to change or if there is another call.
-             // Line 864 calls `PrayerTimeUtil.getRemainingTimeUrdu`.
-             // But the user mentioned the Ticker/Marquee text.
-             // `generateUrduTicker` is used for the Bottom Text Marquee probably.
-             // I need to find where `generateUrduTicker` is called.
-             // Viewing MainActivity 850-900 shows `updateTime` updating `tvLastTime` with `remainingText`.
-             // Is `tvLastTime` the ticker? Or is there another TextView?
-             // Let's assume the user meant the text showing prayer times/date.
-             
-             // Wait, I modified `generateUrduTicker` in PrayerTimeUtil.
-             // Where is `generateUrduTicker` used? I should have checked.
-             // Let's look for usages of `generateUrduTicker` in MainActivity.
-             
-             // If it's not used in `updateTime`, I need to find it.
-             // `tvTicker` might be updated elsewhere.
-             
-             // I'll hold off on this chunk until I verify where generateUrduTicker is called.
-
-             
-             tvLastTime.setText(remainingText);
-             
-             // Check if it is Zawal time (Red Color)
-             // Using new colors, let's use standard alert color (led_red/legacy or explicit)
-             if (remainingText.contains("زوال") || remainingText.contains("ممنوع")) {
-                 tvLastTime.setTextColor(getResources().getColor(R.color.led_red, getTheme()));
-             } else {
-                 // Default Color (Emerald/Green)
-                 tvLastTime.setTextColor(getResources().getColor(R.color.emerald_500, getTheme()));
+                 String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
+                 TimeZone tz = TimeZone.getTimeZone(tzId);
+                 
+                 String remainingText = PrayerTimeUtil.getRemainingTimeUrdu(currentPrayerTimes, tz);
+                 tvLastTime.setText(remainingText);
+                 
+                 // Check if it is Zawal time (Red Color)
+                 if (remainingText.contains("زوال") || remainingText.contains("ممنوع")) {
+                     tvLastTime.setTextColor(ActivityCompat.getColor(this, R.color.led_red));
+                 } else {
+                     tvLastTime.setTextColor(ActivityCompat.getColor(this, R.color.emerald_500));
+                 }
+                 
+                 highlightCurrentPrayer();
+                 checkStartupDialog();
              }
-             
-             highlightCurrentPrayer();
-             
-             // Check for Ramadan Dialog
-             checkStartupDialog();
         }
     }
 

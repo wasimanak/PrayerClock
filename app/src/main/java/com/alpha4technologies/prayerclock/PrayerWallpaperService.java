@@ -48,8 +48,24 @@ public class PrayerWallpaperService extends WallpaperService {
         private TimeZone timeZone;
         
         // Ticker State
-        private float tickerX = 0;
+        private float tickerX = -9999;
         private TextView tickerTextView;
+        private float tickerTextWidth = 0;
+        
+        // Cached Views
+        private TextView tvClock;
+        private TextView tvCountdown;
+        private View footerSection;
+
+        // Optimizations
+        private final SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss", Locale.getDefault());
+        private final SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, dd MMMM yyyy", Locale.getDefault());
+        private long lastClockSecond = -1;
+        private boolean needsLayout = true;
+        
+        // Bitmap Caching for performance
+        private android.graphics.Bitmap staticBitmap;
+        private Canvas staticCanvas;
 
         PrayerEngine() {
             prefs = getSharedPreferences("PrayerClockPrefs", MODE_PRIVATE);
@@ -76,6 +92,13 @@ public class PrayerWallpaperService extends WallpaperService {
             super.onSurfaceDestroyed(holder);
             this.visible = false;
             handler.removeCallbacks(drawRunner);
+            
+            // Clean up bitmap
+            if (staticBitmap != null) {
+                staticBitmap.recycle();
+                staticBitmap = null;
+            }
+            staticCanvas = null;
         }
         
         @Override
@@ -89,6 +112,12 @@ public class PrayerWallpaperService extends WallpaperService {
         private void layoutView(int width, int height) {
             if (mView == null || width <= 0 || height <= 0) return;
             
+            // Cache Views
+            tvClock = mView.findViewById(R.id.tvCurrentTime);
+            tvCountdown = mView.findViewById(R.id.lasttime);
+            tickerTextView = mView.findViewById(R.id.marqueeText);
+            footerSection = mView.findViewById(R.id.footerSection);
+            
             // Measure
             int widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
             int heightSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
@@ -97,10 +126,14 @@ public class PrayerWallpaperService extends WallpaperService {
             // Layout
             mView.layout(0, 0, width, height);
             
+            needsLayout = false;
+
             // Init ticker pos if needed
-            if (tickerTextView == null) {
-                tickerTextView = mView.findViewById(R.id.marqueeText);
-                tickerX = -9999; 
+            if (tickerTextView != null) {
+                tickerTextWidth = tickerTextView.getPaint().measureText(tickerText);
+                if (tickerX == -9999) {
+                    tickerX = -tickerTextWidth;
+                }
             }
         }
 
@@ -123,9 +156,16 @@ public class PrayerWallpaperService extends WallpaperService {
             
             prayerTimes = PrayerTimeUtil.getPrayerTimes(lat, lon, madhab);
             tickerText = PrayerTimeUtil.generateUrduTicker(prayerTimes, lat, lon, timeZone);
+            tickerTextWidth = 0; // Force recalculate width
             
+            // Update DateFormat TimeZones
+            TimeZone tz = timeZone != null ? timeZone : TimeZone.getDefault();
+            timeFormat.setTimeZone(tz);
+            dateFormat.setTimeZone(tz);
+
             // Update Views
             updateViews();
+            needsLayout = true;
         }
         
         private void updateViews() {
@@ -135,8 +175,6 @@ public class PrayerWallpaperService extends WallpaperService {
             
             // Clock & Date
             TextView tvDate = mView.findViewById(R.id.tvDate);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, dd MMMM yyyy", Locale.getDefault());
-            dateFormat.setTimeZone(timeZone != null ? timeZone : TimeZone.getDefault());
             tvDate.setText(dateFormat.format(new Date()));
             
             // Ticker (Prepare for manual draw)
@@ -222,49 +260,78 @@ public class PrayerWallpaperService extends WallpaperService {
                     int width = canvas.getWidth();
                     int height = canvas.getHeight();
                     
-                    // Update Clock
-                    TextView tvTime = mView.findViewById(R.id.tvCurrentTime);
-                    SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss", Locale.getDefault());
-                    timeFormat.setTimeZone(timeZone != null ? timeZone : TimeZone.getDefault());
-                    tvTime.setText(timeFormat.format(new Date()));
-                    
-                    // Update Countdown
-                    if (prayerTimes != null) {
-                        TextView tvLastRequest = mView.findViewById(R.id.lasttime);
-                        String countdown = PrayerTimeUtil.getRemainingTimeUrdu(prayerTimes, timeZone);
-                        if (countdown.isEmpty()) {
-                             tvLastRequest.setText("..."); // Placeholder or hide
-                             tvLastRequest.setVisibility(View.INVISIBLE);
-                        } else {
-                             tvLastRequest.setText(countdown);
-                             tvLastRequest.setVisibility(View.VISIBLE);
+                    long nowMs = System.currentTimeMillis();
+                    long currentSecond = nowMs / 1000;
+
+                    // Update Clock & Countdown once per second
+                    if (currentSecond != lastClockSecond) {
+                        lastClockSecond = currentSecond;
+                        
+                        // Update Clock
+                        if (tvClock != null) {
+                            tvClock.setText(timeFormat.format(new Date(nowMs)));
                         }
+                        
+                        // Update Countdown
+                        if (prayerTimes != null && tvCountdown != null) {
+                            String countdown = PrayerTimeUtil.getRemainingTimeUrdu(prayerTimes, timeZone);
+                            if (countdown.isEmpty()) {
+                                 tvCountdown.setVisibility(View.INVISIBLE);
+                            } else {
+                                 tvCountdown.setText(countdown);
+                                 tvCountdown.setVisibility(View.VISIBLE);
+                            }
+                        }
+                        needsLayout = true;
                     }
 
-                    // Layout
-                    layoutView(width, height);
+                    // Handle Static Bitmap Caching
+                    if (needsLayout || staticBitmap == null || staticBitmap.getWidth() != width || staticBitmap.getHeight() != height) {
+                        if (staticBitmap != null) staticBitmap.recycle();
+                        
+                        try {
+                            staticBitmap = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888);
+                            staticCanvas = new Canvas(staticBitmap);
+                            
+                            // Layout the view hierarchy
+                            layoutView(width, height);
+                            
+                            // Draw the view hierarchy onto the static bitmap
+                            mView.draw(staticCanvas);
+                            
+                            needsLayout = false;
+                        } catch (OutOfMemoryError e) {
+                            // Fallback if memory is tight, though 8GB should be fine
+                            staticBitmap = null;
+                            layoutView(width, height);
+                        }
+                    }
                     
-                    // Draw View Hierarchy
-                    mView.draw(canvas);
+                    // 1. Draw Static Part (from Bitmap or directly)
+                    if (staticBitmap != null) {
+                        canvas.drawBitmap(staticBitmap, 0, 0, null);
+                    } else {
+                        mView.draw(canvas);
+                    }
                     
-                    // Draw Ticker Manually
+                    // 2. Draw Dynamic Part (Ticker) Manually on top
                     if (tickerTextView != null) {
                          Paint paint = tickerTextView.getPaint();
                          paint.setColor(tickerTextView.getCurrentTextColor());
-                         float textWidth = paint.measureText(tickerText);
                          
-                         // Init
-                         if (tickerX == -9999) tickerX = -textWidth;
+                         // Recalculate width if text changed
+                         if (tickerTextWidth == 0) {
+                             tickerTextWidth = paint.measureText(tickerText);
+                         }
                          
-                         tickerX += 5.0f; // Speed
-                         if (tickerX > width) tickerX = -textWidth;
+                         tickerX += 4.0f; // Speed
+                         if (tickerX > width) tickerX = -tickerTextWidth;
                          
                          // Calculate Y position
-                         // footerSection -> tickerTextView
-                         View footer = mView.findViewById(R.id.footerSection);
-                         float globalY = footer.getTop() + tickerTextView.getTop() + tickerTextView.getBaseline();
-                         
-                         canvas.drawText(tickerText, tickerX, globalY, paint);
+                         if (footerSection != null) {
+                             float globalY = footerSection.getTop() + tickerTextView.getTop() + tickerTextView.getBaseline();
+                             canvas.drawText(tickerText, tickerX, globalY, paint);
+                         }
                     }
                 }
             } finally {
@@ -279,7 +346,8 @@ public class PrayerWallpaperService extends WallpaperService {
             
             handler.removeCallbacks(drawRunner);
             if (visible) {
-                handler.postDelayed(drawRunner, 33); 
+                // Ticker needs high FPS. Everything else is throttled by Bitmap/Second checks.
+                handler.postDelayed(drawRunner, 30); 
             }
         }
         
