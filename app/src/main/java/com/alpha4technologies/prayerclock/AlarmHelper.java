@@ -18,18 +18,30 @@ import java.util.TimeZone;
 
 public class AlarmHelper {
 
+    private static long lastScheduleTime = 0;
+    private static String lastScheduleKey = "";
+
     public static void scheduleAllAlarms(Context context) {
         SharedPreferences prefs = context.getSharedPreferences("PrayerClockPrefs", Context.MODE_PRIVATE);
         
         String latStr = prefs.getString("current_lat", null);
         String lonStr = prefs.getString("current_lon", null);
-        
+        String madhabStr = prefs.getString("madhab", "HANAFI");
+
         if (latStr == null || lonStr == null) return;
+
+        // Debounce: Skip if same data and scheduled less than 5 seconds ago
+        String currentKey = latStr + "_" + lonStr + "_" + madhabStr;
+        long now = System.currentTimeMillis();
+        if (currentKey.equals(lastScheduleKey) && (now - lastScheduleTime < 5000)) {
+            return;
+        }
+        lastScheduleKey = currentKey;
+        lastScheduleTime = now;
         
         double lat = Double.parseDouble(latStr);
         double lon = Double.parseDouble(lonStr);
         
-        String madhabStr = prefs.getString("madhab", "HANAFI");
         Madhab madhab = madhabStr.equals("SHAFI") ? Madhab.SHAFI : Madhab.HANAFI;
         
         PrayerTimes times = PrayerTimeUtil.getPrayerTimes(lat, lon, madhab);

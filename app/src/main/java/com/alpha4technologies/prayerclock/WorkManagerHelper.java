@@ -22,7 +22,7 @@ public class WorkManagerHelper {
 
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 WATCHDOG_WORK_NAME,
-                ExistingPeriodicWorkPolicy.REPLACE, // REPLACE ensures the new 4-hour interval is applied
+                ExistingPeriodicWorkPolicy.KEEP, // KEEP prevents self-cancellation loop when called from within the worker
                 workRequest
         );
 
