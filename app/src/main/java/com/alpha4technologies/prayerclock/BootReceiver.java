@@ -13,10 +13,12 @@ public class BootReceiver extends BroadcastReceiver {
         if (action == null) return;
 
         if (Intent.ACTION_BOOT_COMPLETED.equals(action)
+                || Intent.ACTION_TIME_CHANGED.equals(action)
+                || Intent.ACTION_TIMEZONE_CHANGED.equals(action)
                 || "android.intent.action.QUICKBOOT_POWERON".equals(action)
                 || "com.htc.intent.action.QUICKBOOT_POWERON".equals(action)) {
 
-            Log.d("BootReceiver", "Boot completed — restarting service and alarms");
+            Log.d("BootReceiver", "Action " + action + " received — rescheduling alarms");
 
             // Reschedule all prayer alarms
             AlarmHelper.scheduleAllAlarms(context);

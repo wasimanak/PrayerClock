@@ -115,7 +115,6 @@ public class SettingsActivity extends AppCompatActivity {
                 value = "SHAFI";
             }
             prefs.edit().putString("madhab", value).apply();
-            Toast.makeText(this, "Calculation Method Updated", Toast.LENGTH_SHORT).show();
         });
         
         switchAutoLocation.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -125,7 +124,6 @@ public class SettingsActivity extends AppCompatActivity {
                 // Switch to Auto
                 prefs.edit().putBoolean("manual_location", false).apply();
                 updateSearchVisibility(false);
-                Toast.makeText(this, "Switched to Auto Location. Waiting for GPS...", Toast.LENGTH_SHORT).show();
             } else {
                 // Switch to Manual
                 prefs.edit().putBoolean("manual_location", true).apply();
@@ -245,7 +243,6 @@ public class SettingsActivity extends AppCompatActivity {
             .putString("current_city", displayName) 
             .apply();
             
-        Toast.makeText(this, "Saved: " + displayName, Toast.LENGTH_SHORT).show();
         tvCurrentLocationInfo.setText("Current: " + displayName + " (Manual)");
         etSearchQuery.setText(""); // Clear search
     }

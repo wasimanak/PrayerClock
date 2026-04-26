@@ -57,6 +57,8 @@ import com.google.android.gms.ads.AdView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
+import com.alpha4technologies.prayerclock.BuildConfig;
+
 public class MainActivity extends AppCompatActivity {
 
     private TextView tvCurrentTime, tvDate, tvIslamicDate, tvCity, tvTemp, tvLastTime;
@@ -459,7 +461,6 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // 1. Check Overlay Permission (Critical for Android 10+)
             if (!Settings.canDrawOverlays(this)) {
-                Toast.makeText(this, "Overlay Permission Required", Toast.LENGTH_LONG).show();
                 showPermissionDialog("Overlay Permission Required", 
                     "This app needs 'Display over other apps' permission to open automatically during Azan time. Without this, the Azan screen will not appear when the phone is locked. Please allow it for 'PrayerClock' in the next screen.",
                     Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
@@ -468,7 +469,6 @@ public class MainActivity extends AppCompatActivity {
 
             // 2. Check Battery Optimization
             if (!BatteryOptimizationHelper.isIgnoringBatteryOptimizations(this)) {
-                Toast.makeText(this, "Battery Optimization Setting Required", Toast.LENGTH_LONG).show();
                 showPermissionDialog("Battery Optimization Required", 
                     "To ensure the Azan sounds exactly on time, the app must be allowed to run without battery restrictions. Please select 'No restrictions' or 'Allow' for 'PrayerClock' in the next screen.",
                     Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
@@ -686,7 +686,6 @@ public class MainActivity extends AppCompatActivity {
             public boolean onSingleTapConfirmed(android.view.MotionEvent e) {
                 // Switch to Auto
                 prefs.edit().putBoolean("manual_location", false).apply();
-                Toast.makeText(MainActivity.this, "Switched to Auto Location", Toast.LENGTH_SHORT).show();
                 requestLocation();
                 return true;
             }
@@ -791,7 +790,6 @@ public class MainActivity extends AppCompatActivity {
             .putString("current_city", displayName) // Sync for wallpaper
             .apply();
             
-        Toast.makeText(this, "Manual Location Set: " + displayName, Toast.LENGTH_SHORT).show();
         requestLocation(); // Refresh with new manual data
     }
     
@@ -893,14 +891,14 @@ public class MainActivity extends AppCompatActivity {
                     // If we added day for Isha, this check should pass.
                     // But if Adhan 5 AM (Fajr) and user sets 4 AM, it's invalid.
                     if (jamatCal.getTime().before(adhanDate)) {
-                        Toast.makeText(MainActivity.this, "جماعت کا وقت اذان سے پہلے نہیں ہو سکتا", Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, "Jamat time cannot be before Adhan", Toast.LENGTH_LONG).show();
                         return;
                     }
                     
                     // Validation 2: Jamat cannot be after next prayer logic
                     if (nextPrayerDate != null && jamatCal.getTime().after(nextPrayerDate)) {
                          String limitName = getLimitNameByKey(key);
-                         Toast.makeText(MainActivity.this, "جماعت کا وقت " + limitName + " سے پہلے ہونا چاہئے", Toast.LENGTH_LONG).show();
+                         Toast.makeText(MainActivity.this, "Jamat time must be before " + limitName, Toast.LENGTH_LONG).show();
                          return;
                     }
                 }
@@ -913,7 +911,6 @@ public class MainActivity extends AppCompatActivity {
             // Reschedule alarm immediately
             if (currentPrayerTimes != null) {
                 AlarmHelper.scheduleAllAlarms(this);
-                Toast.makeText(MainActivity.this, "Jamat Time updated", Toast.LENGTH_SHORT).show();
             }
         });
         
@@ -958,26 +955,26 @@ public class MainActivity extends AppCompatActivity {
         tvDate.setText(dateFormat.format(now));
         
         if (currentPrayerTimes != null) {
-             // Update Islamic Date & Prayer info once every 10 seconds or on change
-             // to reduce CPU usage. Clock is updated every second above.
+             // 1. Update Remaining Time EVERY SECOND (requested by user)
+             String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
+             TimeZone tz = TimeZone.getTimeZone(tzId);
+             
+             String remainingText = PrayerTimeUtil.getRemainingTimeUrdu(currentPrayerTimes, tz);
+             tvLastTime.setText(remainingText);
+             
+             // Check if it is Zawal time (Red Color)
+             if (remainingText.contains("زوال") || remainingText.contains("ممنوع")) {
+                 tvLastTime.setTextColor(ActivityCompat.getColor(this, R.color.led_red));
+             } else {
+                 tvLastTime.setTextColor(ActivityCompat.getColor(this, R.color.emerald_500));
+             }
+
+             // 2. Update Islamic Date & slow UI elements once every 10 seconds to reduce CPU usage.
              if (nowSec % 10 == 0 || lastIslamicDateUpdateSec == -1) {
                  lastIslamicDateUpdateSec = nowSec;
                  
                  String islamicDate = PrayerTimeUtil.getRamadanDateString(currentPrayerTimes, cachedLat, cachedLon);
                  tvIslamicDate.setText(islamicDate);
-
-                 String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
-                 TimeZone tz = TimeZone.getTimeZone(tzId);
-                 
-                 String remainingText = PrayerTimeUtil.getRemainingTimeUrdu(currentPrayerTimes, tz);
-                 tvLastTime.setText(remainingText);
-                 
-                 // Check if it is Zawal time (Red Color)
-                 if (remainingText.contains("زوال") || remainingText.contains("ممنوع")) {
-                     tvLastTime.setTextColor(ActivityCompat.getColor(this, R.color.led_red));
-                 } else {
-                     tvLastTime.setTextColor(ActivityCompat.getColor(this, R.color.emerald_500));
-                 }
                  
                  highlightCurrentPrayer();
                  checkStartupDialog();
@@ -1097,8 +1094,6 @@ public class MainActivity extends AppCompatActivity {
                                     // But we can try if internet works but gps doesn't.
                                     fetchWeather(lat, lon); 
                                     
-                                    Toast.makeText(MainActivity.this, "Using last known location", Toast.LENGTH_SHORT).show();
-                                    
                                 } catch (NumberFormatException e) {
                                      tvCity.setText("Location not found (Auto)");
                                 }
@@ -1197,12 +1192,12 @@ public class MainActivity extends AppCompatActivity {
     
     private String getLimitNameByKey(String key) {
         switch(key) {
-             case "fajr": return "طلوع آفتاب";
-             case "dhuhr": return "عصر";
-             case "asr": return "مغرب";
-             case "maghrib": return "عشاء";
-             case "jummah": return "عصر";
-             case "isha": return "فجر";
+             case "fajr": return "Sunrise";
+             case "dhuhr": return "Asr";
+             case "asr": return "Maghrib";
+             case "maghrib": return "Isha";
+             case "jummah": return "Asr";
+             case "isha": return "Fajr";
              default: return "";
         }
     }

@@ -234,7 +234,7 @@ public class QiblaActivity extends AppCompatActivity implements SensorEventListe
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         if (sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
             if (accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE || accuracy == SensorManager.SENSOR_STATUS_ACCURACY_LOW) {
-                Toast.makeText(this, "کیمرے کو آٹھ (8) ہندسے کی شکل میں گھما کر سینسر ٹھیک کریں", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please calibrate sensor by moving the device in an 8-shape", Toast.LENGTH_SHORT).show();
             }
         }
     }

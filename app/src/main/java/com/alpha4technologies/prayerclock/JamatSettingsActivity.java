@@ -171,13 +171,13 @@ public class JamatSettingsActivity extends AppCompatActivity {
                     }
 
                     if (jamatCal.getTime().before(adhanDate)) {
-                        Toast.makeText(this, "جماعت کا وقت اذان سے پہلے نہیں ہو سکتا", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Jamat time cannot be before Adhan", Toast.LENGTH_LONG).show();
                         return;
                     }
 
                     if (nextPrayerDate != null && jamatCal.getTime().after(nextPrayerDate)) {
                         String limitName = getLimitNameByKey(key);
-                        Toast.makeText(this, "جماعت کا وقت " + limitName + " سے پہلے ہونا چاہئے", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Jamat time must be before " + limitName, Toast.LENGTH_LONG).show();
                         return;
                     }
                 }
@@ -189,7 +189,6 @@ public class JamatSettingsActivity extends AppCompatActivity {
 
             if (currentPrayerTimes != null) {
                 AlarmHelper.scheduleAllAlarms(this);
-                Toast.makeText(this, "Jamat Time updated", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -226,11 +225,11 @@ public class JamatSettingsActivity extends AppCompatActivity {
 
     private String getLimitNameByKey(String key) {
         switch(key) {
-            case "fajr": return "طلوع آفتاب";
-            case "dhuhr": return "عصر";
-            case "asr": return "مغرب";
-            case "maghrib": return "عشاء";
-            default: return "اگلی نماز";
+            case "fajr": return "Sunrise";
+            case "dhuhr": return "Asr";
+            case "asr": return "Maghrib";
+            case "maghrib": return "Isha";
+            default: return "Next Prayer";
         }
     }
 }
