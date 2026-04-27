@@ -89,10 +89,10 @@
 
         <receiver
             android:name=".AzanReceiver"
-            android:exported="true" />
+            android:exported="false" />
         <receiver
             android:name=".JamatReceiver"
-            android:exported="true" />
+            android:exported="false" />
         <receiver
             android:name=".TasbihReminderReceiver"
             android:exported="false" />

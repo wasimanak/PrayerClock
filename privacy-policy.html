@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy – PrayerClock</title>
+    <meta name="description" content="Privacy Policy for PrayerClock – Islamic Prayer Times, Azan & Qibla Direction app by Alpha4 Technologies." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:        #0f1117;
+            --surface:   #1a1d27;
+            --card:      #22263a;
+            --accent:    #4f8ef7;
+            --accent2:   #7c5cbf;
+            --text:      #e4e8f0;
+            --muted:     #8b91a7;
+            --border:    rgba(255,255,255,0.07);
+            --radius:    14px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.75;
+            min-height: 100vh;
+        }
+
+        /* ── Hero ── */
+        header {
+            background: linear-gradient(135deg, #1a1d27 0%, #12152a 60%, #0f1117 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 56px 24px 48px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 70% 60% at 50% -10%, rgba(79,142,247,.18), transparent);
+            pointer-events: none;
+        }
+        .app-icon {
+            width: 80px; height: 80px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            box-shadow: 0 8px 32px rgba(79,142,247,.35);
+        }
+        header h1 {
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 30%, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        header p.subtitle {
+            color: var(--muted);
+            font-size: .95rem;
+            margin-top: 8px;
+        }
+        .badge {
+            display: inline-block;
+            margin-top: 18px;
+            padding: 5px 16px;
+            background: rgba(79,142,247,.12);
+            border: 1px solid rgba(79,142,247,.25);
+            border-radius: 50px;
+            font-size: .8rem;
+            color: var(--accent);
+            letter-spacing: .3px;
+        }
+
+        /* ── Layout ── */
+        main {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 30px;
+            margin-bottom: 24px;
+            transition: border-color .25s;
+        }
+        .card:hover { border-color: rgba(79,142,247,.3); }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+        .icon-circle {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .blue  { background: rgba(79,142,247,.15); }
+        .green { background: rgba(52,199,89,.15); }
+        .purple{ background: rgba(124,92,191,.15); }
+        .orange{ background: rgba(255,159,10,.15); }
+        .red   { background: rgba(255,69,58,.15); }
+        .teal  { background: rgba(49,209,174,.15); }
+
+        .card h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        p { color: var(--muted); font-size: .93rem; margin-bottom: 12px; }
+        p:last-child { margin-bottom: 0; }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        ul li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            color: var(--muted);
+            font-size: .93rem;
+            padding: 7px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        ul li:last-child { border-bottom: none; }
+        ul li .dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+            margin-top: 7px;
+            flex-shrink: 0;
+        }
+
+        /* Permission Table */
+        .perm-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .88rem;
+            margin-top: 4px;
+        }
+        .perm-table th {
+            text-align: left;
+            padding: 10px 14px;
+            background: rgba(255,255,255,.04);
+            color: var(--muted);
+            font-weight: 500;
+            font-size: .8rem;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+        .perm-table td {
+            padding: 11px 14px;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            vertical-align: top;
+        }
+        .perm-table td:first-child {
+            color: #c9d1e8;
+            font-family: 'Courier New', monospace;
+            font-size: .83rem;
+            white-space: nowrap;
+        }
+        .perm-table tr:hover td { background: rgba(255,255,255,.02); }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* Updated date */
+        .updated {
+            text-align: center;
+            color: var(--muted);
+            font-size: .82rem;
+            margin-bottom: 36px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 28px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: .82rem;
+        }
+
+        @media (max-width: 600px) {
+            .card { padding: 22px 18px; }
+            .perm-table td:first-child { white-space: normal; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header>
+    <div class="app-icon">🕌</div>
+    <h1>Privacy Policy</h1>
+    <p class="subtitle">PrayerClock — Islamic Prayer Times, Azan & Qibla Direction</p>
+    <span class="badge">Developed by Alpha4 Technologies</span>
+</header>
+
+<!-- ══ MAIN ══ -->
+<main>
+
+    <p class="updated">Last updated: April 27, 2026</p>
+
+    <!-- 1. Introduction -->
+    <div class="card">
+        <div class="card-header">
+            <div class="icon-circle blue">📋</div>
+            <h2>Introduction</h2>
+        </div>
+        <p>
+            Welcome to <strong style="color:#fff">PrayerClock</strong>. This Privacy Policy explains how Alpha4 Technologies ("we", "us", or "our") handles your information when you use our mobile application.
+        </p>
+        <p>
+            We are committed to protecting your privacy. PrayerClock is designed to provide accurate Islamic prayer times, Azan alerts, Qibla direction, and Tasbih counter — all with minimal data collection.
+        </p>
+    </div>
+
+    <!-- 2. Information We Collect -->
+    <div class="card">
+        <div class="card-header">
+            <div class="icon-circle green">📍</div>
+            <h2>Information We Collect</h2>
+        </div>
+        <p>PrayerClock collects only the minimum information required to function:</p>
+        <ul>
+            <li><span class="dot"></span><strong style="color:#e4e8f0">Location Data</strong> — Used to calculate accurate prayer times and Qibla direction. It is also sent to a third-party weather service (Open-Meteo) to provide current temperature. We do not store your location on our own servers.</li>
+            <li><span class="dot"></span><strong style="color:#e4e8f0">Device Identifiers</strong> — We collect basic identifiers like ANDROID_ID and device model to monitor app usage, provide updates, and ensure the stability of our services via Firebase.</li>
+        </ul>
+    </div>
+
+    <!-- 3. Permissions -->
+    <div class="card">
+        <div class="card-header">
+            <div class="icon-circle purple">🔐</div>
+            <h2>App Permissions Explained</h2>
+        </div>
+        <table class="perm-table">
+            <thead>
+                <tr>
+                    <th>Permission</th>
+                    <th>Why We Need It</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ACCESS_FINE_LOCATION<br/>ACCESS_COARSE_LOCATION</td>
+                    <td>To calculate prayer times, Qibla direction, and fetch local weather data.</td>
+                </tr>
+                <tr>
+                    <td>SCHEDULE_EXACT_ALARM<br/>USE_EXACT_ALARM</td>
+                    <td>To deliver Azan alerts precisely at prayer times.</td>
+                </tr>
+                <tr>
+                    <td>FOREGROUND_SERVICE<br/>FOREGROUND_SERVICE_MEDIA_PLAYBACK</td>
+                    <td>To play the Azan audio reliably in the background.</td>
+                </tr>
+                <tr>
+                    <td>POST_NOTIFICATIONS</td>
+                    <td>To display prayer time reminders and notifications.</td>
+                </tr>
+                <tr>
+                    <td>USE_FULL_SCREEN_INTENT</td>
+                    <td>To show the Azan screen on the lock screen at prayer times.</td>
+                </tr>
+                <tr>
+                    <td>SYSTEM_ALERT_WINDOW</td>
+                    <td>To display the prayer alert overlay when the phone is locked.</td>
+                </tr>
+                <tr>
+                    <td>RECEIVE_BOOT_COMPLETED</td>
+                    <td>To reschedule all prayer alarms after a device restart.</td>
+                </tr>
+                <tr>
+                    <td>REQUEST_IGNORE_BATTERY_OPTIMIZATIONS</td>
+                    <td>To ensure the app isn't killed by the system so Azan stays on time.</td>
+                </tr>
+                <tr>
+                    <td>WAKE_LOCK</td>
+                    <td>To wake the CPU briefly for Azan playback.</td>
+                </tr>
+                <tr>
+                    <td>SET_WALLPAPER</td>
+                    <td>For the optional Live Wallpaper feature.</td>
+                </tr>
+                <tr>
+                    <td>INTERNET</td>
+                    <td>For ads, weather data, and anonymous crash reports.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 4. How We Use Info -->
+    <div class="card">
+        <div class="card-header">
+            <div class="icon-circle teal">⚙️</div>
+            <h2>How We Use Your Information</h2>
+        </div>
+        <ul>
+            <li><span class="dot"></span>Calculate accurate Salah (prayer) times.</li>
+            <li><span class="dot"></span>Provide real-time weather/temperature updates.</li>
+            <li><span class="dot"></span>Determine Qibla direction.</li>
+            <li><span class="dot"></span>Deliver timely Azan and Jamat notifications.</li>
+            <li><span class="dot"></span>Improve app performance and fix bugs through anonymous analytics.</li>
+        </ul>
+    </div>
+
+    <!-- 5. Third Party -->
+    <div class="card">
+        <div class="card-header">
+            <div class="icon-circle orange">🔗</div>
+            <h2>Third-Party Services</h2>
+        </div>
+        <p>PrayerClock uses the following third-party services:</p>
+        <ul>
+            <li>
+                <span class="dot"></span>
+                <span><strong style="color:#e4e8f0">Open-Meteo</strong> — Used to fetch weather data based on your location. <a href="https://open-meteo.com/en/features#privacy" target="_blank">Open-Meteo Privacy →</a></span>
+            </li>
+            <li>
+                <span class="dot"></span>
+                <span><strong style="color:#e4e8f0">Google AdMob</strong> — Displays ads. <a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy →</a></span>
+            </li>
+            <li>
+                <span class="dot"></span>
+                <span><strong style="color:#e4e8f0">Firebase (Database, Analytics, Crashlytics)</strong> — Used for tracking app versions, stability, and anonymous usage stats.</span>
+            </li>
+        </ul>
+    </div>
+
+
+    <!-- 6. Data Sharing -->
+    <div class="card">
+        <div class="card-header">
+            <div class="icon-circle red">🚫</div>
+            <h2>Data Sharing & Sale</h2>
+        </div>
+        <p>
+            <strong style="color:#fff">We do not sell, trade, rent, or share your personal information with any third parties</strong> outside of the services listed above.
+        </p>
+        <p>
+            Your location data is used exclusively on-device to compute prayer times and is never transmitted to our servers or any external service.
+        </p>
+    </div>
+
+    <!-- 7. Data Retention -->
+    <div class="card">
+        <div class="card-header">
+            <div class="icon-circle blue">🗄️</div>
+            <h2>Data Retention</h2>
+        </div>
+        <p>
+            PrayerClock does not maintain any user accounts or server-side databases. All preferences and settings are stored locally on your device. Uninstalling the app removes all locally stored data.
+        </p>
+        <p>
+            Anonymous analytics and crash data retained by Firebase follow <a href="https://firebase.google.com/support/privacy" target="_blank">Google's data retention policies</a>.
+        </p>
+    </div>
+
+    <!-- 8. Children -->
+    <div class="card">
+        <div class="card-header">
+            <div class="icon-circle green">👶</div>
+            <h2>Children's Privacy</h2>
+        </div>
+        <p>
+            PrayerClock is not directed at children under the age of 13. We do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us so we can delete it.
+        </p>
+    </div>
+
+    <!-- 9. Security -->
+    <div class="card">
+        <div class="card-header">
+            <div class="icon-circle teal">🛡️</div>
+            <h2>Security</h2>
+        </div>
+        <p>
+            We take reasonable technical and organizational measures to protect your information. Since PrayerClock processes location data exclusively on-device and does not transmit it to external servers, the risk of data interception is minimal.
+        </p>
+    </div>
+
+    <!-- 10. Changes -->
+    <div class="card">
+        <div class="card-header">
+            <div class="icon-circle purple">🔄</div>
+            <h2>Changes to This Policy</h2>
+        </div>
+        <p>
+            We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated date at the top. We encourage you to review this policy periodically.
+        </p>
+        <p>
+            Continued use of PrayerClock after any changes constitutes your acceptance of the updated policy.
+        </p>
+    </div>
+
+    <!-- 11. Contact -->
+    <div class="card">
+        <div class="card-header">
+            <div class="icon-circle orange">📬</div>
+            <h2>Contact Us</h2>
+        </div>
+        <p>If you have any questions or concerns about this Privacy Policy, please contact us:</p>
+        <ul>
+            <li><span class="dot"></span><strong style="color:#e4e8f0">Developer:</strong> Alpha4 Technologies</li>
+            <li><span class="dot"></span><strong style="color:#e4e8f0">Email:</strong> <a href="mailto:waasimalik@gmail.com">waasimalik@gmail.com</a></li>
+        </ul>
+    </div>
+
+</main>
+
+<footer>
+    &copy; 2026 Alpha4 Technologies. All rights reserved. &nbsp;·&nbsp; PrayerClock
+</footer>
+
+</body>
+</html>

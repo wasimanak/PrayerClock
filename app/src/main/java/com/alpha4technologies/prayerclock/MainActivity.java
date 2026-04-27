@@ -373,23 +373,41 @@ public class MainActivity extends AppCompatActivity {
     private void requestPermissionsOnStartup() {
         // Android 13+: Request ALL permissions together
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            notificationPermissionLauncher.launch(new String[]{
-                Manifest.permission.POST_NOTIFICATIONS,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            });
+            // Check if we need to show disclosure
+            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                showLocationDisclosure(() -> {
+                    notificationPermissionLauncher.launch(new String[]{
+                        Manifest.permission.POST_NOTIFICATIONS,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    });
+                });
+            } else {
+                notificationPermissionLauncher.launch(new String[]{Manifest.permission.POST_NOTIFICATIONS});
+            }
         } else {
             // Android < 13
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 requestLocation();
-                // Check notifications logic for existing users
                 if (!NotificationManagerCompat.from(this).areNotificationsEnabled()) {
                      showNotificationSettingsDialog();
                 }
             } else {
-                requestLocationPermissionIfNeeded();
+                showLocationDisclosure(this::requestLocationPermissionIfNeeded);
             }
         }
+    }
+
+    private void showLocationDisclosure(Runnable onAgree) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Location Access for Prayer Times")
+            .setMessage("PrayerClock collects location data to calculate accurate prayer times and Qibla direction based on your current position. This data is also used to fetch local weather updates. \n\nPlease allow location access in the next screen for correct prayer alerts.")
+            .setPositiveButton("Accept", (dialog, which) -> onAgree.run())
+            .setNegativeButton("Deny", (dialog, which) -> {
+                Toast.makeText(this, "Location is required for automatic prayer times.", Toast.LENGTH_LONG).show();
+            })
+            .setCancelable(false)
+            .show();
     }
     
     private void showNotificationSettingsDialog() {
