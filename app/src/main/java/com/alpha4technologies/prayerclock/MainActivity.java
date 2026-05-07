@@ -724,6 +724,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onSingleTapConfirmed(android.view.MotionEvent e) {
                 // Switch to Auto
                 prefs.edit().putBoolean("manual_location", false).apply();
+                PrayerTimeUtil.clearJamatTimes(prefs);
                 requestLocation();
                 return true;
             }
@@ -828,6 +829,7 @@ public class MainActivity extends AppCompatActivity {
             .putString("current_city", displayName) // Sync for wallpaper
             .apply();
             
+        PrayerTimeUtil.clearJamatTimes(prefs);
         requestLocation(); // Refresh with new manual data
     }
     
@@ -1200,6 +1202,12 @@ public class MainActivity extends AppCompatActivity {
                 if (city == null) city = "Unknown City";
                 tvCity.setText(city);
                 
+                // If city changed significantly, clear Jamat times
+                String oldCity = prefs.getString("current_city", "");
+                if (city != null && !city.equals(oldCity)) {
+                    PrayerTimeUtil.clearJamatTimes(prefs);
+                }
+
                 // Save for Wallpaper
                 prefs.edit().putString("current_city", city).apply();
             } else {

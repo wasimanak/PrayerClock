@@ -440,4 +440,15 @@ public class PrayerTimeUtil {
             default: return "";
         }
     }
+
+    public static void clearJamatTimes(android.content.SharedPreferences prefs) {
+        prefs.edit()
+            .remove("jamat_fajr")
+            .remove("jamat_dhuhr")
+            .remove("jamat_asr")
+            .remove("jamat_maghrib")
+            .remove("jamat_isha")
+            .remove("jamat_jummah")
+            .apply();
+    }
 }

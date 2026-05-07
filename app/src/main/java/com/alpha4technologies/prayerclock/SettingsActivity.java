@@ -123,10 +123,12 @@ public class SettingsActivity extends AppCompatActivity {
             if (isAuto) {
                 // Switch to Auto
                 prefs.edit().putBoolean("manual_location", false).apply();
+                PrayerTimeUtil.clearJamatTimes(prefs);
                 updateSearchVisibility(false);
             } else {
                 // Switch to Manual
                 prefs.edit().putBoolean("manual_location", true).apply();
+                PrayerTimeUtil.clearJamatTimes(prefs);
                 updateSearchVisibility(true);
                 // Don't show toast, user sees search box
             }
@@ -242,6 +244,8 @@ public class SettingsActivity extends AppCompatActivity {
             .putString("current_lon", String.valueOf(address.getLongitude())) 
             .putString("current_city", displayName) 
             .apply();
+            
+        PrayerTimeUtil.clearJamatTimes(prefs);
             
         tvCurrentLocationInfo.setText("Current: " + displayName + " (Manual)");
         etSearchQuery.setText(""); // Clear search
