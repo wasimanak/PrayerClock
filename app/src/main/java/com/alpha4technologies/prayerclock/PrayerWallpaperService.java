@@ -154,7 +154,7 @@ public class PrayerWallpaperService extends WallpaperService {
             String madhabStr = prefs.getString("madhab", "HANAFI");
             Madhab madhab = madhabStr.equals("SHAFI") ? Madhab.SHAFI : Madhab.HANAFI;
             
-            prayerTimes = PrayerTimeUtil.getPrayerTimes(lat, lon, madhab);
+            prayerTimes = PrayerTimeUtil.getPrayerTimes(lat, lon, madhab, timeZone);
             tickerText = PrayerTimeUtil.generateUrduTicker(prayerTimes, lat, lon, timeZone);
             tickerTextWidth = 0; // Force recalculate width
             
@@ -196,8 +196,8 @@ public class PrayerWallpaperService extends WallpaperService {
                 updateRowValues(mView.findViewById(R.id.rowJummah), "jummah", "جمعہ", prayerTimes.dhuhr, 45, currentKey.equals("jummah"));
                 
                 // Jummah Visibility Logic
-                Calendar cal = Calendar.getInstance(); 
-                // Use System Time for Friday check, not prayer time object which varies
+                Calendar cal = Calendar.getInstance(timeZone != null ? timeZone : TimeZone.getDefault()); 
+                // Use Target Time for Friday check
                 boolean isFriday = cal.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY;
                 
                 mView.findViewById(R.id.rowDhuhr).setVisibility(isFriday ? View.GONE : View.VISIBLE);

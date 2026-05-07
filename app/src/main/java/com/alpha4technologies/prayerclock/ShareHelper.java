@@ -51,8 +51,8 @@ public class ShareHelper {
         String madhabStr = prefs.getString("madhab", "HANAFI");
         Madhab madhab = madhabStr.equals("SHAFI") ? Madhab.SHAFI : Madhab.HANAFI;
 
-        PrayerTimes todayTimes = PrayerTimeUtil.getPrayerTimes(lat, lon, madhab);
         TimeZone tz = TimeZone.getTimeZone(tzId);
+        PrayerTimes todayTimes = PrayerTimeUtil.getPrayerTimes(lat, lon, madhab, tz);
 
         // Prepare Dialog
         android.app.Dialog dialog = new android.app.Dialog(activity);
@@ -71,7 +71,7 @@ public class ShareHelper {
 
         // Populate Data
         String englishDate = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH).format(new Date());
-        String islamicDate = PrayerTimeUtil.getRamadanDateString(todayTimes, lat, lon);
+        String islamicDate = PrayerTimeUtil.getRamadanDateString(todayTimes, lat, lon, tz);
         tvDate.setText(islamicDate + "  |  \u200E" + englishDate);
 
         tvLocation.setText(city);

@@ -44,10 +44,10 @@ public class AlarmHelper {
         
         Madhab madhab = madhabStr.equals("SHAFI") ? Madhab.SHAFI : Madhab.HANAFI;
         
-        PrayerTimes times = PrayerTimeUtil.getPrayerTimes(lat, lon, madhab);
-        
         String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
         TimeZone tz = TimeZone.getTimeZone(tzId);
+        
+        PrayerTimes times = PrayerTimeUtil.getPrayerTimes(lat, lon, madhab, tz);
         
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (alarmManager == null) return;

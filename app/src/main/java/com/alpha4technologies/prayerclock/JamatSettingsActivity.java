@@ -14,6 +14,7 @@ import com.batoulapps.adhan.PrayerTimes;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 import android.os.Build;
 import android.view.Window;
 import android.view.WindowManager;
@@ -66,7 +67,9 @@ public class JamatSettingsActivity extends AppCompatActivity {
         String madhabStr = prefs.getString("madhab", "HANAFI");
         Madhab madhab = madhabStr.equals("SHAFI") ? Madhab.SHAFI : Madhab.HANAFI;
         
-        currentPrayerTimes = PrayerTimeUtil.getPrayerTimes(lat, lon, madhab);
+        String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
+        TimeZone tz = TimeZone.getTimeZone(tzId);
+        currentPrayerTimes = PrayerTimeUtil.getPrayerTimes(lat, lon, madhab, tz);
     }
 
     private void setupRow(View row, String name, String key) {
@@ -127,7 +130,9 @@ public class JamatSettingsActivity extends AppCompatActivity {
                 hourPicker.setValue(h);
                 minutePicker.setValue(m);
             } else {
-                Calendar cal = Calendar.getInstance();
+                String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
+                TimeZone tz = TimeZone.getTimeZone(tzId);
+                Calendar cal = Calendar.getInstance(tz);
                 int h = cal.get(Calendar.HOUR);
                 if (h == 0) h = 12;
                 hourPicker.setValue(h);
@@ -161,7 +166,9 @@ public class JamatSettingsActivity extends AppCompatActivity {
                 Date nextPrayerDate = getUpperBoundTimeByKey(key);
 
                 if (adhanDate != null) {
-                    Calendar jamatCal = Calendar.getInstance();
+                    String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
+                    TimeZone tz = TimeZone.getTimeZone(tzId);
+                    Calendar jamatCal = Calendar.getInstance(tz);
                     jamatCal.setTime(adhanDate);
                     jamatCal.set(Calendar.HOUR_OF_DAY, h24);
                     jamatCal.set(Calendar.MINUTE, m);

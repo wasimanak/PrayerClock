@@ -68,8 +68,8 @@ public class MainActivity extends AppCompatActivity {
     private PrayerTimes currentPrayerTimes;
     
     // Formatters to avoid allocations in updateTime()
-    private final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm:ss", Locale.getDefault());
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault());
+    private SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm:ss", Locale.getDefault());
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault());
     private long lastIslamicDateUpdateSec = -1;
 
     private FusedLocationProviderClient fusedLocationClient;
@@ -140,6 +140,13 @@ public class MainActivity extends AppCompatActivity {
 
         initViews();
         setupTicker();
+        
+        // Initial TimeZone Sync for Clock
+        String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
+        TimeZone tz = TimeZone.getTimeZone(tzId);
+        timeFormat.setTimeZone(tz);
+        dateFormat.setTimeZone(tz);
+        
         startClock();
         initFirebase(); // Track user and check update
         
@@ -166,11 +173,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         
-        // Use a small delay to ensure the activity is ready to show dialogs
-        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            checkMandatoryPermissions();
-        }, 1000);
-
         // Refresh data when returning from Settings
         boolean isManual = prefs.getBoolean("manual_location", false);
         boolean hasPerm = false;
@@ -178,6 +180,20 @@ public class MainActivity extends AppCompatActivity {
             hasPerm = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         } else {
             hasPerm = true;
+        }
+
+        // Aggressively refresh UI from cached/last known data to show Jamat changes immediately
+        String lastLat = prefs.getString("current_lat", null);
+        String lastLon = prefs.getString("current_lon", null);
+        if (lastLat != null && lastLon != null) {
+            try {
+                double lat = Double.parseDouble(lastLat);
+                double lon = Double.parseDouble(lastLon);
+                Location loc = new Location("manual");
+                loc.setLatitude(lat);
+                loc.setLongitude(lon);
+                updatePrayerTimes(loc);
+            } catch (Exception e) { e.printStackTrace(); }
         }
 
         if (isManual || hasPerm) {
@@ -213,7 +229,9 @@ public class MainActivity extends AppCompatActivity {
         if (today.equals(lastShown)) return; // Already shown today
 
         if (currentPrayerTimes != null) {
-            boolean isRamadan = PrayerTimeUtil.isRamadan(currentPrayerTimes, cachedLat, cachedLon);
+            String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
+            TimeZone tz = TimeZone.getTimeZone(tzId);
+            boolean isRamadan = PrayerTimeUtil.isRamadan(currentPrayerTimes, cachedLat, cachedLon, tz);
             if (isRamadan) {
                 showRamadanDialog();
             } else {
@@ -267,7 +285,9 @@ public class MainActivity extends AppCompatActivity {
             lon = Double.parseDouble(prefs.getString("current_lon", "0"));
         } catch (Exception e) { e.printStackTrace(); }
 
-        String islamicDate = PrayerTimeUtil.getRamadanDateString(currentPrayerTimes, lat, lon);
+        String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
+        TimeZone tz = TimeZone.getTimeZone(tzId);
+        String islamicDate = PrayerTimeUtil.getRamadanDateString(currentPrayerTimes, lat, lon, tz);
         // Use LRM (\u200E) to force English date to render LTR correctly in mixed context
         tvDate.setText(islamicDate + "  |  " + "\u200E" + englishDate);
         
@@ -990,8 +1010,7 @@ public class MainActivity extends AppCompatActivity {
              // 2. Update Islamic Date & slow UI elements once every 10 seconds to reduce CPU usage.
              if (nowSec % 10 == 0 || lastIslamicDateUpdateSec == -1) {
                  lastIslamicDateUpdateSec = nowSec;
-                 
-                 String islamicDate = PrayerTimeUtil.getRamadanDateString(currentPrayerTimes, cachedLat, cachedLon);
+                 String islamicDate = PrayerTimeUtil.getRamadanDateString(currentPrayerTimes, cachedLat, cachedLon, tz);
                  tvIslamicDate.setText(islamicDate);
                  
                  highlightCurrentPrayer();
@@ -1017,11 +1036,14 @@ public class MainActivity extends AppCompatActivity {
         // Determine which row to highlight
         View rowToHighlight = null;
         
+        String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
+        TimeZone tz = TimeZone.getTimeZone(tzId);
+
         if (current == com.batoulapps.adhan.Prayer.FAJR) {
             rowToHighlight = rowFajr;
         } else if (current == com.batoulapps.adhan.Prayer.DHUHR) {
             // Check if Friday
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance(tz);
             boolean isFriday = cal.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY;
             if (isFriday) {
                 rowToHighlight = rowJummah;
@@ -1201,9 +1223,11 @@ public class MainActivity extends AppCompatActivity {
                 // Before Next Fajr
                  Calendar cal = Calendar.getInstance();
                  cal.add(Calendar.DAY_OF_YEAR, 1);
-                 String madhabStr = prefs.getString("madhab", "HANAFI");
-                 Madhab madhab = madhabStr.equals("SHAFI") ? Madhab.SHAFI : Madhab.HANAFI;
-                 return (cachedLat != 0) ? PrayerTimeUtil.getPrayerTimes(cachedLat, cachedLon, cal.getTime(), madhab).fajr : null;
+                  String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
+                  TimeZone tz = TimeZone.getTimeZone(tzId);
+                  String madhabStr = prefs.getString("madhab", "HANAFI");
+                  Madhab madhab = madhabStr.equals("SHAFI") ? Madhab.SHAFI : Madhab.HANAFI;
+                 return (cachedLat != 0) ? PrayerTimeUtil.getPrayerTimes(cachedLat, cachedLon, cal.getTime(), madhab, tz).fajr : null;
             default: return null;
         }
     }
@@ -1245,11 +1269,14 @@ public class MainActivity extends AppCompatActivity {
         String madhabStr = prefs.getString("madhab", "HANAFI");
         Madhab madhab = madhabStr.equals("SHAFI") ? Madhab.SHAFI : Madhab.HANAFI;
         
-        currentPrayerTimes = PrayerTimeUtil.getPrayerTimes(cachedLat, cachedLon, madhab);
-        
-        // Get TimeZone
         String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
         TimeZone tz = TimeZone.getTimeZone(tzId);
+        
+        currentPrayerTimes = PrayerTimeUtil.getPrayerTimes(cachedLat, cachedLon, madhab, tz);
+        
+        // Update main clock formatters
+        timeFormat.setTimeZone(tz);
+        dateFormat.setTimeZone(tz);
 
         updateRow(rowFajr, currentPrayerTimes.fajr, 5, "fajr", tz);
         updateRow(rowDhuhr, currentPrayerTimes.dhuhr, 5, "dhuhr", tz);

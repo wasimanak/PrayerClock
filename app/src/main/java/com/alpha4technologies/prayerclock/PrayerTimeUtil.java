@@ -14,13 +14,22 @@ import java.util.TimeZone;
 
 public class PrayerTimeUtil {
 
-    public static PrayerTimes getPrayerTimes(double latitude, double longitude, Madhab madhab) {
-        return getPrayerTimes(latitude, longitude, new Date(), madhab);
+    public static PrayerTimes getPrayerTimes(double latitude, double longitude, Madhab madhab, TimeZone tz) {
+        return getPrayerTimes(latitude, longitude, new Date(), madhab, tz);
     }
 
-    public static PrayerTimes getPrayerTimes(double latitude, double longitude, Date dateObj, Madhab madhab) {
+    public static PrayerTimes getPrayerTimes(double latitude, double longitude, Date dateObj, Madhab madhab, TimeZone tz) {
         Coordinates coordinates = new Coordinates(latitude, longitude);
-        DateComponents date = DateComponents.from(dateObj);
+        
+        // Use Calendar with target timezone to get correct year/month/day
+        Calendar cal = Calendar.getInstance(tz != null ? tz : TimeZone.getDefault());
+        cal.setTime(dateObj);
+        
+        DateComponents date = new DateComponents(
+            cal.get(Calendar.YEAR),
+            cal.get(Calendar.MONTH) + 1,
+            cal.get(Calendar.DAY_OF_MONTH)
+        );
         
         com.batoulapps.adhan.CalculationParameters params = 
             CalculationMethod.KARACHI.getParameters();
@@ -140,7 +149,7 @@ public class PrayerTimeUtil {
         String isha = formatTime(times.isha, timeZone);
         
         // Use the sunset-aware date logic (same as Ramadan Dialog)
-        String hijri = getRamadanDateString(times, lat, lon);
+        String hijri = getRamadanDateString(times, lat, lon, timeZone);
 
         // Construct Urdu String
         return "  فجر: " + fajr + "  |  " +
@@ -251,8 +260,8 @@ public class PrayerTimeUtil {
         return label + ": " + timeStr;
     }
 
-    public static boolean isRamadan(PrayerTimes times, double lat, double lon) {
-        Calendar cal = Calendar.getInstance();
+    public static boolean isRamadan(PrayerTimes times, double lat, double lon, TimeZone tz) {
+        Calendar cal = Calendar.getInstance(tz != null ? tz : TimeZone.getDefault());
         if (times != null) {
             // Check if Maghrib has passed
             long now = System.currentTimeMillis();
@@ -283,8 +292,8 @@ public class PrayerTimeUtil {
         return false; 
     }
 
-    public static String getRamadanDateString(PrayerTimes times, double lat, double lon) {
-        Calendar cal = Calendar.getInstance();
+    public static String getRamadanDateString(PrayerTimes times, double lat, double lon, TimeZone tz) {
+        Calendar cal = Calendar.getInstance(tz != null ? tz : TimeZone.getDefault());
         if (times != null) {
             // Check if Maghrib has passed
             long now = System.currentTimeMillis();
@@ -398,22 +407,22 @@ public class PrayerTimeUtil {
             String madhabStr = prefs.getString("madhab", "HANAFI");
             Madhab madhab = madhabStr.equals("SHAFI") ? Madhab.SHAFI : Madhab.HANAFI;
             
-            PrayerTimes times = getPrayerTimes(lat, lon, madhab);
+            String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
+            TimeZone tz = TimeZone.getTimeZone(tzId);
+            
+            PrayerTimes times = getPrayerTimes(lat, lon, madhab, tz);
             com.batoulapps.adhan.Prayer next = times.nextPrayer();
             
             if (next == com.batoulapps.adhan.Prayer.NONE) {
                 // If it is after Isha, next is tomorrow's Fajr
                 Calendar cal = Calendar.getInstance();
                 cal.add(Calendar.DAY_OF_YEAR, 1);
-                times = getPrayerTimes(lat, lon, cal.getTime(), madhab);
+                times = getPrayerTimes(lat, lon, cal.getTime(), madhab, tz);
                 next = com.batoulapps.adhan.Prayer.FAJR;
             }
 
             Date nextTime = times.timeForPrayer(next);
             String name = getPrayerNameUrdu(next);
-            
-            String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
-            TimeZone tz = TimeZone.getTimeZone(tzId);
             
             return "اگلی نماز: " + name + " (" + formatTime(nextTime, tz) + ")";
         } catch (Exception e) {
