@@ -20,6 +20,21 @@
     <!-- Top Nav area -->
     <!-- Back button removed per user request -->
 
+    <!-- Share Button -->
+    <ImageView
+        android:id="@+id/btnShare"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="48dp"
+        android:layout_marginStart="16dp"
+        android:padding="12dp"
+        android:src="@android:drawable/ic_menu_share"
+        app:tint="@color/gold_accent"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"/>
+
     <!-- Sound Toggle -->
     <TextView
         android:id="@+id/btnSoundToggle"

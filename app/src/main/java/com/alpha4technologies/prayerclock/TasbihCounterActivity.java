@@ -25,11 +25,13 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Locale;
 
 public class TasbihCounterActivity extends AppCompatActivity {
 
     TextView tvName, tvCount, btnSoundToggle;
+    ImageView btnShare;
     View root;
     private AdView mAdView;
 
@@ -40,6 +42,9 @@ public class TasbihCounterActivity extends AppCompatActivity {
     boolean isSoundEnabled = true;
     MediaPlayer mediaPlayer;
     private NavigationHelper navHelper;
+    
+    private String firebaseAyahArabic = "فَاذْكُرُونِي أَذْكُرْكُمْ";
+    private String firebaseAyahUrdu = "تم میرا ذکر کرو، میں تمہارا ذکر کروں گا";
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -64,6 +69,7 @@ public class TasbihCounterActivity extends AppCompatActivity {
         tvName = findViewById(R.id.tvTasbihName);
         tvCount = findViewById(R.id.tvCounter);
         btnSoundToggle = findViewById(R.id.btnSoundToggle);
+        btnShare = findViewById(R.id.btnShare);
         root = findViewById(R.id.rootLayout);
 
         tasbih = (TasbihModel) getIntent().getSerializableExtra("tasbih");
@@ -75,6 +81,7 @@ public class TasbihCounterActivity extends AppCompatActivity {
 
         prefs = getSharedPreferences("TasbihPrefs", MODE_PRIVATE);
         isSoundEnabled = prefs.getBoolean("sound_enabled", true);
+        checkDayChange();
         updateSoundToggleUI();
         
         try {
@@ -96,6 +103,10 @@ public class TasbihCounterActivity extends AppCompatActivity {
             updateSoundToggleUI();
         });
 
+        btnShare.setOnClickListener(v -> {
+            shareTasbih();
+        });
+
         navHelper = new NavigationHelper(this, 2, true);
         navHelper.init();
 
@@ -105,6 +116,7 @@ public class TasbihCounterActivity extends AppCompatActivity {
             v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
             playSound();
             tasbih.count++;
+            tasbih.todayCount++;
             updateUI();
         });
 
@@ -115,6 +127,7 @@ public class TasbihCounterActivity extends AppCompatActivity {
                 v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                 playSound();
                 tasbih.count--;
+                if (tasbih.todayCount > 0) tasbih.todayCount--;
                 updateUI();
             }
             return true;
@@ -136,6 +149,34 @@ public class TasbihCounterActivity extends AppCompatActivity {
                         if (adsEnabled && snapshot.child("banner_ad_id").exists()) {
                             String adId = snapshot.child("banner_ad_id").getValue(String.class);
                             loadBannerAd(adId);
+                        }
+                    }
+                }
+                @Override
+                public void onCancelled(com.google.firebase.database.DatabaseError error) {}
+            });
+            
+        // Fetch Daily Ayat (Multiple entries)
+        com.google.firebase.database.FirebaseDatabase.getInstance().getReference("dailyAyat")
+            .addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
+                @Override
+                public void onDataChange(com.google.firebase.database.DataSnapshot snapshot) {
+                    if (snapshot.exists() && snapshot.hasChildren()) {
+                        java.util.List<com.google.firebase.database.DataSnapshot> items = new java.util.ArrayList<>();
+                        for (com.google.firebase.database.DataSnapshot child : snapshot.getChildren()) {
+                            items.add(child);
+                        }
+                        
+                        if (!items.isEmpty()) {
+                            int randomIndex = new java.util.Random().nextInt(items.size());
+                            com.google.firebase.database.DataSnapshot selected = items.get(randomIndex);
+                            
+                            if (selected.child("arabic").exists()) {
+                                firebaseAyahArabic = selected.child("arabic").getValue(String.class);
+                            }
+                            if (selected.child("urdu").exists()) {
+                                firebaseAyahUrdu = selected.child("urdu").getValue(String.class);
+                            }
                         }
                     }
                 }
@@ -167,6 +208,7 @@ public class TasbihCounterActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
+        checkDayChange();
         tasbih.updatedAt = System.currentTimeMillis();
         formatAndDisplayCount();
 
@@ -226,5 +268,25 @@ public class TasbihCounterActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void checkDayChange() {
+        Calendar now = Calendar.getInstance();
+        Calendar last = Calendar.getInstance();
+        last.setTimeInMillis(tasbih.lastResetDate);
+
+        if (now.get(Calendar.YEAR) != last.get(Calendar.YEAR) ||
+            now.get(Calendar.DAY_OF_YEAR) != last.get(Calendar.DAY_OF_YEAR)) {
+            
+            // It's a new day
+            tasbih.yesterdayCount = tasbih.todayCount;
+            tasbih.todayCount = 0;
+            tasbih.lastResetDate = System.currentTimeMillis();
+            // We'll save this update in updateUI() call that usually follows
+        }
+    }
+
+    private void shareTasbih() {
+        ShareHelper.shareTasbih(this, tasbih, firebaseAyahArabic, firebaseAyahUrdu);
     }
 }

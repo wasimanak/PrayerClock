@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="12dp"
+    app:cardBackgroundColor="@android:color/transparent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#00000000">
+
+            <!-- Shareable Content Area -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/shareableContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="550dp"
+                android:background="#151722">
+
+                <!-- Header Decor -->
+                <View
+                    android:id="@+id/headerDecor"
+                    android:layout_width="80dp"
+                    android:layout_height="3dp"
+                    android:layout_marginTop="24dp"
+                    android:background="#D4AF37"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <!-- Tasbih Name -->
+                <TextView
+                    android:id="@+id/tvTasbihName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SubhanAllah"
+                    android:textColor="#D4AF37"
+                    android:textSize="32sp"
+                    android:fontFamily="@font/sakkal"
+                    android:textStyle="bold"
+                    android:layout_marginTop="12dp"
+                    app:layout_constraintTop_toBottomOf="@id/headerDecor"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <!-- Current Date -->
+                <TextView
+                    android:id="@+id/tvDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="14 May 2026"
+                    android:textColor="#94A3B8"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp"
+                    app:layout_constraintTop_toBottomOf="@id/tvTasbihName"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <!-- Counts Container -->
+                <LinearLayout
+                    android:id="@+id/layoutCounts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="3"
+                    android:paddingHorizontal="16dp"
+                    android:layout_marginTop="32dp"
+                    app:layout_constraintTop_toBottomOf="@id/tvDate">
+
+                    <!-- Today -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:background="@drawable/bg_border_card"
+                        android:padding="12dp"
+                        android:layout_marginEnd="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Today"
+                            android:textColor="#94A3B8"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvTodayCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1,234"
+                            android:textColor="#FFFFFF"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+
+                    <!-- Yesterday -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:background="@drawable/bg_border_card"
+                        android:padding="12dp"
+                        android:layout_marginHorizontal="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Yesterday"
+                            android:textColor="#94A3B8"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvYesterdayCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="850"
+                            android:textColor="#FFFFFF"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+
+                    <!-- Total -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:background="@drawable/bg_border_card"
+                        android:padding="12dp"
+                        android:layout_marginStart="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Total"
+                            android:textColor="#94A3B8"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvTotalCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="15,400"
+                            android:textColor="#FFFFFF"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Ayah Section -->
+                <LinearLayout
+                    android:id="@+id/ayahContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:paddingHorizontal="24dp"
+                    android:layout_marginTop="32dp"
+                    app:layout_constraintTop_toBottomOf="@id/layoutCounts">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Daily Ayat"
+                        android:textColor="@color/white"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:id="@+id/tvAyahArabic"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ"
+                        android:textColor="#FFFFFF"
+                        android:textSize="22sp"
+                        android:gravity="center"
+                        android:fontFamily="@font/sakkal"
+                        android:lineSpacingExtra="8dp"/>
+
+                    <TextView
+                        android:id="@+id/tvAyahUrdu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="اور صبر اور نماز سے مدد حاصل کرو"
+                        android:textColor="#D4AF37"
+                        android:textSize="18sp"
+                        android:gravity="center"
+                        android:fontFamily="@font/jameel_noori_nastaleeq"
+                        android:layout_marginTop="12dp"/>
+
+                </LinearLayout>
+
+                <!-- Footer Section -->
+                <LinearLayout
+                    android:id="@+id/footer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="#1A1C29"
+                    android:padding="16dp"
+                    android:layout_marginTop="40dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/ayahContainer">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Prayer Clock"
+                            android:textColor="#D4AF37"
+                            android:textStyle="bold"
+                            android:textSize="18sp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Download the app to track your Tasbih and Prayer Times."
+                            android:textColor="#94A3B8"
+                            android:textSize="12sp"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginEnd="16dp"/>
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/ivQrCode"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:src="@android:drawable/ic_menu_gallery"
+                        android:background="#FFFFFF"
+                        android:padding="2dp"/>
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Action Button -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:background="#0F172A">
+
+                <Button
+                    android:id="@+id/btnShareImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="Share to WhatsApp"
+                    android:textColor="#0F172A"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:backgroundTint="#D4AF37"
+                    app:icon="@android:drawable/ic_menu_share"
+                    app:iconGravity="textStart"
+                    app:iconTint="#0F172A"
+                    app:cornerRadius="12dp"/>
+            </FrameLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</androidx.cardview.widget.CardView>
