@@ -269,13 +269,6 @@ public class PrayerTimeUtil {
                 cal.add(Calendar.DAY_OF_YEAR, 1); // Next Islamic Day starts at Maghrib
             }
         }
-        
-        // AUTO-CORRECTION for Pakistan (Moon Sighting difference) based on GEOLOCATION
-        if (lat > 23.0 && lat < 37.5 &&
-            lon > 60.0 && lon < 78.0) {
-             cal.add(Calendar.DAY_OF_YEAR, -1);
-        }
-
         Date dateToUse = cal.getTime();
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -301,15 +294,6 @@ public class PrayerTimeUtil {
                 cal.add(Calendar.DAY_OF_YEAR, 1); // Next Islamic Day starts at Maghrib
             }
         }
-        
-        // AUTO-CORRECTION for Pakistan (Moon Sighting difference) based on GEOLOCATION
-        // Pakistan Bounds: Lat 23-37, Lon 60-78
-        // This ensures -1 day offset applies even if user has manual location set but wrong device TimeZone
-        if (lat > 23.0 && lat < 37.5 &&
-            lon > 60.0 && lon < 78.0) {
-             cal.add(Calendar.DAY_OF_YEAR, -1);
-        }
-
         Date dateToUse = cal.getTime();
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
