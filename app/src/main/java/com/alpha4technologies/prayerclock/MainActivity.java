@@ -167,6 +167,12 @@ public class MainActivity extends AppCompatActivity {
             }
             // Mandatory permissions are handled in onResume to catch changes
         }, 800);
+
+        // Show manufacturer-specific battery guide (once only, after 3s delay)
+        // This helps on Xiaomi/Samsung/Oppo/Vivo where background apps are killed
+        new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> {
+            ManufacturerHelper.showGuideIfNeeded(this);
+        }, 3000);
     }
     
     @Override
@@ -1335,7 +1341,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void checkBatteryOptimization() {
-        BatteryOptimizationHelper.checkAndRequestOptimization(this);
+        // Show manufacturer-specific guide (reset flag so it shows again from Settings)
+        ManufacturerHelper.resetAndShowGuide(this);
     }
 
 

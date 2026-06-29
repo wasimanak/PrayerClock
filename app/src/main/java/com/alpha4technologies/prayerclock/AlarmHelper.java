@@ -55,22 +55,59 @@ public class AlarmHelper {
         // 0. Start Watchdog to ensure survival
         WorkManagerHelper.scheduleWatchdog(context);
         
-        // 1. Azan Alarms via AlarmManager (Deep Sleep Proof)
-        scheduleAzanAlarm(context, alarmManager, times.fajr, "Fajr", tz);
-        scheduleAzanAlarm(context, alarmManager, times.dhuhr, "Dhuhr", tz);
-        scheduleAzanAlarm(context, alarmManager, times.asr, "Asr", tz);
+        // 1. Azan Alarms via AlarmManager (primary — Deep Sleep Proof)
+        scheduleAzanAlarm(context, alarmManager, times.fajr,    "Fajr",    tz);
+        scheduleAzanAlarm(context, alarmManager, times.dhuhr,   "Dhuhr",   tz);
+        scheduleAzanAlarm(context, alarmManager, times.asr,     "Asr",     tz);
         scheduleAzanAlarm(context, alarmManager, times.maghrib, "Maghrib", tz);
-        scheduleAzanAlarm(context, alarmManager, times.isha, "Isha", tz);
+        scheduleAzanAlarm(context, alarmManager, times.isha,    "Isha",    tz);
         
-        // 2. Jamat Alarms
+        // 2. WorkManager backup workers (fire 10s after AlarmManager time)
+        scheduleWorkerForPrayer(context, times.fajr,    "Fajr",    now, tz);
+        scheduleWorkerForPrayer(context, times.dhuhr,   "Dhuhr",   now, tz);
+        scheduleWorkerForPrayer(context, times.asr,     "Asr",     now, tz);
+        scheduleWorkerForPrayer(context, times.maghrib, "Maghrib", now, tz);
+        scheduleWorkerForPrayer(context, times.isha,    "Isha",    now, tz);
+        
+        // 3. Jamat Alarms
         scheduleJamatAlarms(context, alarmManager, times, tz, prefs);
         
-        // 3. Tasbih Reminders
+        // 4. Tasbih Reminders
         scheduleTasbihReminderAlarm(context, alarmManager, times.dhuhr, "Dhuhr", tz);
-        scheduleTasbihReminderAlarm(context, alarmManager, times.isha, "Isha", tz);
+        scheduleTasbihReminderAlarm(context, alarmManager, times.isha,  "Isha",  tz);
         
-        Log.d("AlarmHelper", "All alarms scheduled successfully");
+        Log.d("AlarmHelper", "All alarms + WorkManager backup workers scheduled successfully");
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // WorkManager backup scheduling helper
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private static void scheduleWorkerForPrayer(Context context, Date prayerTime,
+                                                 String name, long now, TimeZone tz) {
+        if (prayerTime == null) return;
+
+        Calendar cal = Calendar.getInstance(tz);
+        cal.setTime(prayerTime);
+
+        // If prayer time has already passed today, schedule for tomorrow
+        if (cal.getTimeInMillis() <= now) {
+            cal.add(Calendar.DAY_OF_YEAR, 1);
+        }
+
+        long delayMs = cal.getTimeInMillis() - now;
+        WorkManagerHelper.schedulePrayerWorker(context, name, delayMs);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        sdf.setTimeZone(tz);
+        Log.d("AlarmHelper", "WorkManager backup scheduled for " + name
+                + " at " + sdf.format(cal.getTime())
+                + " (delay: " + (delayMs / 60000) + " min)");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // AlarmManager (primary)
+    // ─────────────────────────────────────────────────────────────────────────
 
     private static void scheduleAzanAlarm(Context context, AlarmManager alarmManager, Date time, String name, TimeZone tz) {
         if (time == null) return;
@@ -85,11 +122,11 @@ public class AlarmHelper {
     }
 
     private static void scheduleJamatAlarms(Context context, AlarmManager alarmManager, PrayerTimes times, TimeZone tz, SharedPreferences prefs) {
-        scheduleSingleJamatAlarm(context, alarmManager, times.fajr, "Fajr", "fajr", tz, prefs);
-        scheduleSingleJamatAlarm(context, alarmManager, times.dhuhr, "Dhuhr", "dhuhr", tz, prefs);
-        scheduleSingleJamatAlarm(context, alarmManager, times.asr, "Asr", "asr", tz, prefs);
+        scheduleSingleJamatAlarm(context, alarmManager, times.fajr,    "Fajr",    "fajr",    tz, prefs);
+        scheduleSingleJamatAlarm(context, alarmManager, times.dhuhr,   "Dhuhr",   "dhuhr",   tz, prefs);
+        scheduleSingleJamatAlarm(context, alarmManager, times.asr,     "Asr",     "asr",     tz, prefs);
         scheduleSingleJamatAlarm(context, alarmManager, times.maghrib, "Maghrib", "maghrib", tz, prefs);
-        scheduleSingleJamatAlarm(context, alarmManager, times.isha, "Isha", "isha", tz, prefs);
+        scheduleSingleJamatAlarm(context, alarmManager, times.isha,    "Isha",    "isha",    tz, prefs);
     }
 
     private static void scheduleSingleJamatAlarm(Context context, AlarmManager alarmManager, Date azanTime, String name, String key, TimeZone tz, SharedPreferences prefs) {

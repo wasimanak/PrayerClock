@@ -3,6 +3,7 @@ package com.alpha4technologies.prayerclock;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.PowerManager;
 import android.provider.Settings;
@@ -10,6 +11,10 @@ import android.util.Log;
 
 public class AzanReceiver extends BroadcastReceiver {
     private static final String TAG = "AzanReceiver";
+
+    // SharedPrefs key prefix used by both AzanReceiver and PrayerAzanWorker
+    // When AlarmManager fires: write true → WorkManager sees it and skips duplicate
+    private static final String PREF_AZAN_FIRED = "azan_fired_";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -30,10 +35,23 @@ public class AzanReceiver extends BroadcastReceiver {
             wakeLock.acquire(20000); // 20 seconds
         }
 
-        // Mute Check
+        SharedPreferences prefs = context.getSharedPreferences("PrayerClockPrefs", Context.MODE_PRIVATE);
+
+        // ── Mark that AlarmManager fired for this prayer ──────────────────────
+        // PrayerAzanWorker checks this flag to avoid duplicate azan
         if (prayerName != null) {
-            android.content.SharedPreferences prefs =
-                context.getSharedPreferences("PrayerClockPrefs", Context.MODE_PRIVATE);
+            prefs.edit().putBoolean(PREF_AZAN_FIRED + prayerName.toLowerCase(), true).apply();
+        }
+
+        // ── Cancel the WorkManager backup worker for THIS prayer ──────────────
+        // AlarmManager fired first → worker is no longer needed for this prayer
+        if (prayerName != null) {
+            WorkManagerHelper.cancelPrayerWorker(context, prayerName);
+            Log.d(TAG, "Cancelled WorkManager backup worker for: " + prayerName);
+        }
+
+        // ── Mute Check ────────────────────────────────────────────────────────
+        if (prayerName != null) {
             boolean isMuted = prefs.getBoolean("mute_azan_" + prayerName.toLowerCase(), false);
             if (isMuted) {
                 Log.d(TAG, "MUTED for: " + prayerName);
@@ -44,7 +62,7 @@ public class AzanReceiver extends BroadcastReceiver {
 
         Log.d(TAG, "Azan alarm fired for: " + prayerName);
 
-        // Start Azan service (plays audio + shows full-screen notification)
+        // ── Start Azan service (plays audio + shows full-screen notification) ─
         Intent serviceIntent = new Intent(context, AzanPlayerService.class);
         serviceIntent.putExtra("prayer_name", prayerName);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -57,8 +75,7 @@ public class AzanReceiver extends BroadcastReceiver {
             context.startService(serviceIntent);
         }
 
-        // Launch app directly using SYSTEM_ALERT_WINDOW (most reliable cross-device method)
-        // This works even on lock screen on Android 10+ when permission is granted
+        // ── Launch app (most reliable cross-device method) ───────────────────
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
                 Settings.canDrawOverlays(context)) {
             try {
@@ -79,7 +96,7 @@ public class AzanReceiver extends BroadcastReceiver {
             Log.d(TAG, "SYSTEM_ALERT_WINDOW not granted — relying on fullScreenIntent notification");
         }
 
-        // Reschedule alarms for next prayer
+        // ── Reschedule all alarms (AlarmManager + WorkManager) for next prayer ─
         AlarmHelper.scheduleAllAlarms(context);
 
         if (wakeLock != null && wakeLock.isHeld()) wakeLock.release();
