@@ -21,7 +21,7 @@ import android.graphics.Color;
 
 import com.batoulapps.adhan.Madhab;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
 
     private RadioGroup rgMadhab;
     private RadioButton rbHanafi, rbShafi;

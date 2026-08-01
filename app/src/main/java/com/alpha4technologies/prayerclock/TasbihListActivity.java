@@ -25,7 +25,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class TasbihListActivity extends AppCompatActivity {
+public class TasbihListActivity extends BaseActivity {
 
     RecyclerView rv;
     FloatingActionButton fab;

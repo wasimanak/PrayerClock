@@ -23,7 +23,7 @@ import android.graphics.Color;
 import android.hardware.GeomagneticField;
 import android.widget.ImageButton;
 
-public class QiblaActivity extends AppCompatActivity implements SensorEventListener {
+public class QiblaActivity extends BaseActivity implements SensorEventListener {
 
     private ImageView ivCompassDial, ivQiblaNeedle;
     private TextView tvDegrees, tvQiblaDegrees;

@@ -59,7 +59,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import com.alpha4technologies.prayerclock.BuildConfig;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private TextView tvCurrentTime, tvDate, tvIslamicDate, tvCity, tvTemp, tvLastTime;
     private View rowFajr, rowDhuhr, rowAsr, rowMaghrib, rowIsha, rowJummah;

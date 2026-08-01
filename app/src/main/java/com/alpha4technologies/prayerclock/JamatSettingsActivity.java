@@ -19,7 +19,7 @@ import android.os.Build;
 import android.view.Window;
 import android.view.WindowManager;
 
-public class JamatSettingsActivity extends AppCompatActivity {
+public class JamatSettingsActivity extends BaseActivity {
 
     private SharedPreferences prefs;
     private PrayerTimes currentPrayerTimes;

@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class TasbihCounterActivity extends AppCompatActivity {
+public class TasbihCounterActivity extends BaseActivity {
 
     TextView tvName, tvCount, btnSoundToggle;
     ImageView btnShare;
