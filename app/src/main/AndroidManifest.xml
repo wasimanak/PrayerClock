@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -28,6 +29,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PrayerClock"
         tools:targetApi="31" >
+        
+        <property
+            android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+            android:value="Prayer Times Background Survival Timer" />
         
         <property
             android:name="android.adservices.AD_SERVICES_CONFIG"
@@ -113,6 +118,11 @@
             android:name=".AzanPlayerService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
+            
+        <service
+            android:name=".PrayerTimerService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

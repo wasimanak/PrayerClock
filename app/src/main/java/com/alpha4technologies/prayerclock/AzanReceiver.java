@@ -129,7 +129,15 @@ public class AzanReceiver extends BroadcastReceiver {
         // 3. Reset the 30-minute watchdog so it starts fresh from now
         WorkManagerHelper.rescheduleWatchdog(context);
 
-        Log.d(TAG, "scheduleNextEverything: AlarmManager + Workers + Watchdog all set");
+        // 4. Force update the Foreground Service Notification
+        Intent serviceIntent = new Intent(context, PrayerTimerService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(serviceIntent);
+        } else {
+            context.startService(serviceIntent);
+        }
+
+        Log.d(TAG, "scheduleNextEverything: AlarmManager + Workers + Watchdog + Service all set");
     }
 
     /**

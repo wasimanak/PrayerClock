@@ -138,6 +138,17 @@ public class MainActivity extends BaseActivity {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
+        // ── Start Persistent Foreground Service ──
+        Intent serviceIntent = new Intent(this, PrayerTimerService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
+
+        // ── Schedule Daily Random Durood Reminder ──
+        DuroodWorker.scheduleNext(this, androidx.work.ExistingWorkPolicy.KEEP);
+
         initViews();
         setupTicker();
         
