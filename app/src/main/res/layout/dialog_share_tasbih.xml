@@ -52,18 +52,43 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent" />
 
-                <!-- Current Date -->
-                <TextView
+                <!-- Date Row: Islamic (left) | Gregorian (right) -->
+                <LinearLayout
                     android:id="@+id/tvDate"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="14 May 2026"
-                    android:textColor="#94A3B8"
-                    android:textSize="14sp"
-                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="6dp"
+                    android:paddingHorizontal="20dp"
                     app:layout_constraintTop_toBottomOf="@id/tvTasbihName"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <!-- Islamic / Hijri Date — left side -->
+                    <TextView
+                        android:id="@+id/tvIslamicDate"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="۱۴ محرم ۱۴۴۷"
+                        android:textColor="#D4AF37"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/jameel_noori_nastaleeq"
+                        android:layoutDirection="ltr"
+                        android:gravity="left" />
+
+                    <!-- Gregorian Date — right side -->
+                    <TextView
+                        android:id="@+id/tvGregorianDate"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="14 May 2026"
+                        android:textColor="#D4AF37"
+                        android:textSize="13sp"
+                        android:gravity="end" />
+
+                </LinearLayout>
 
                 <!-- Counts Container -->
                 <LinearLayout
@@ -179,7 +204,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Daily Ayat"
-                        android:textColor="@color/white"
+                        android:textColor="#D4AF37"
                         android:layout_marginBottom="12dp"/>
 
                     <TextView

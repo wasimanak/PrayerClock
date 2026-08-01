@@ -164,20 +164,29 @@ public class ShareHelper {
         }
 
         View shareableContent = dialog.findViewById(R.id.shareableContent);
-        TextView tvTasbihName = dialog.findViewById(R.id.tvTasbihName);
-        TextView tvDate = dialog.findViewById(R.id.tvDate);
-        TextView tvTodayCount = dialog.findViewById(R.id.tvTodayCount);
+        TextView tvTasbihName   = dialog.findViewById(R.id.tvTasbihName);
+        TextView tvIslamicDate  = dialog.findViewById(R.id.tvIslamicDate);
+        TextView tvGregorianDate = dialog.findViewById(R.id.tvGregorianDate);
+        TextView tvTodayCount   = dialog.findViewById(R.id.tvTodayCount);
         TextView tvYesterdayCount = dialog.findViewById(R.id.tvYesterdayCount);
-        TextView tvTotalCount = dialog.findViewById(R.id.tvTotalCount);
-        TextView tvAyahArabic = dialog.findViewById(R.id.tvAyahArabic);
-        TextView tvAyahUrdu = dialog.findViewById(R.id.tvAyahUrdu);
-        ImageView ivQrCode = dialog.findViewById(R.id.ivQrCode);
-        Button btnShareImage = dialog.findViewById(R.id.btnShareImage);
+        TextView tvTotalCount   = dialog.findViewById(R.id.tvTotalCount);
+        TextView tvAyahArabic   = dialog.findViewById(R.id.tvAyahArabic);
+        TextView tvAyahUrdu     = dialog.findViewById(R.id.tvAyahUrdu);
+        ImageView ivQrCode      = dialog.findViewById(R.id.ivQrCode);
+        Button btnShareImage    = dialog.findViewById(R.id.btnShareImage);
 
         // Populate Data
         tvTasbihName.setText(tasbih.name);
+
+        // Islamic (Hijri) date — left
+        String tzId2 = prefs.getString("current_timezone", TimeZone.getDefault().getID());
+        TimeZone tz2 = TimeZone.getTimeZone(tzId2);
+        String islamicDate = PrayerTimeUtil.getHijriDate(new Date());
+        if (tvIslamicDate != null) tvIslamicDate.setText(islamicDate);
+
+        // Gregorian date — right
         String englishDate = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH).format(new Date());
-        tvDate.setText(englishDate);
+        if (tvGregorianDate != null) tvGregorianDate.setText(englishDate);
 
         java.text.NumberFormat nf = java.text.NumberFormat.getNumberInstance(Locale.US);
         tvTodayCount.setText(nf.format(tasbih.todayCount));
