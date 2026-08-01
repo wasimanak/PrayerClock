@@ -9,6 +9,14 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
 
+import com.batoulapps.adhan.Madhab;
+import com.batoulapps.adhan.Prayer;
+import com.batoulapps.adhan.PrayerTimes;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 public class AzanReceiver extends BroadcastReceiver {
     private static final String TAG = "AzanReceiver";
 
@@ -55,6 +63,8 @@ public class AzanReceiver extends BroadcastReceiver {
             boolean isMuted = prefs.getBoolean("mute_azan_" + prayerName.toLowerCase(), false);
             if (isMuted) {
                 Log.d(TAG, "MUTED for: " + prayerName);
+                // Even if muted, still reschedule next prayer
+                scheduleNextEverything(context, prefs);
                 if (wakeLock != null && wakeLock.isHeld()) wakeLock.release();
                 return;
             }
@@ -92,13 +102,82 @@ public class AzanReceiver extends BroadcastReceiver {
                 Log.e(TAG, "startActivity failed: " + e.getMessage());
             }
         } else {
-            // SYSTEM_ALERT_WINDOW not granted — fallback to fullScreenIntent notification
             Log.d(TAG, "SYSTEM_ALERT_WINDOW not granted — relying on fullScreenIntent notification");
         }
 
-        // ── Reschedule all alarms (AlarmManager + WorkManager) for next prayer ─
-        AlarmHelper.scheduleAllAlarms(context);
+        // ── Reschedule next prayer (AlarmManager + WorkManager + Watchdog) ────
+        scheduleNextEverything(context, prefs);
 
         if (wakeLock != null && wakeLock.isHeld()) wakeLock.release();
+    }
+
+    /**
+     * اذان کے بعد اگلی prayer کا time get کرو اور:
+     *  1. AlarmManager alarm set کرو (scheduleAllAlarms)
+     *  2. WorkManager backup worker set کرو (explicit next prayer)
+     *  3. Watchdog کو fresh reset کرو (30-min clock restart)
+     */
+    private void scheduleNextEverything(Context context, SharedPreferences prefs) {
+        // 1. Reschedule ALL alarms (AlarmManager + all 5 WorkManager prayer workers)
+        AlarmHelper.scheduleAllAlarms(context);
+
+        // 2. Explicit: also schedule only the NEXT prayer's worker directly
+        //    (belt-and-suspenders — scheduleAllAlarms already does this,
+        //     but we do it again with a fresh calculation to be 100% sure)
+        scheduleNextPrayerWorkerExplicit(context, prefs);
+
+        // 3. Reset the 30-minute watchdog so it starts fresh from now
+        WorkManagerHelper.rescheduleWatchdog(context);
+
+        Log.d(TAG, "scheduleNextEverything: AlarmManager + Workers + Watchdog all set");
+    }
+
+    /**
+     * Directly calculate next prayer time and enqueue its WorkManager backup worker.
+     */
+    private void scheduleNextPrayerWorkerExplicit(Context context, SharedPreferences prefs) {
+        String latStr = prefs.getString("current_lat", null);
+        String lonStr = prefs.getString("current_lon", null);
+        if (latStr == null || lonStr == null) return;
+
+        try {
+            double lat = Double.parseDouble(latStr);
+            double lon = Double.parseDouble(lonStr);
+            String madhabStr = prefs.getString("madhab", "HANAFI");
+            Madhab madhab = madhabStr.equals("SHAFI") ? Madhab.SHAFI : Madhab.HANAFI;
+            String tzId = prefs.getString("current_timezone", TimeZone.getDefault().getID());
+            TimeZone tz = TimeZone.getTimeZone(tzId);
+
+            long now = System.currentTimeMillis();
+            PrayerTimes times = PrayerTimeUtil.getPrayerTimes(lat, lon, madhab, tz);
+            Prayer nextPrayer = times.nextPrayer();
+            Date nextPrayerTime;
+            String nextPrayerName;
+
+            if (nextPrayer == Prayer.NONE) {
+                // After Isha → tomorrow's Fajr
+                Calendar cal = Calendar.getInstance(tz);
+                cal.add(Calendar.DAY_OF_YEAR, 1);
+                PrayerTimes tomorrow = PrayerTimeUtil.getPrayerTimes(lat, lon, cal.getTime(), madhab, tz);
+                nextPrayerTime = tomorrow.fajr;
+                nextPrayerName = "Fajr";
+            } else {
+                nextPrayerTime = times.timeForPrayer(nextPrayer);
+                nextPrayerName = PrayerAzanWorker.getPrayerName(nextPrayer);
+            }
+
+            if (nextPrayerTime == null) return;
+
+            long delayMs = nextPrayerTime.getTime() - now;
+            if (delayMs < 0) delayMs = 0;
+
+            WorkManagerHelper.schedulePrayerWorker(context, nextPrayerName, delayMs);
+
+            Log.d(TAG, "Explicit next prayer worker → " + nextPrayerName
+                    + " in " + (delayMs / 60000) + " min");
+
+        } catch (Exception e) {
+            Log.e(TAG, "scheduleNextPrayerWorkerExplicit error: " + e.getMessage(), e);
+        }
     }
 }
