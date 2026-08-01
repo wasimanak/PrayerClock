@@ -155,6 +155,8 @@ public class MainActivity extends BaseActivity {
         
         // Request permissions with slight delay to ensure Activity is ready
         new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (isDestroyed() || isFinishing()) return;
+            
             requestPermissionsOnStartup();
             // Android 14+: request USE_FULL_SCREEN_INTENT permission
             if (Build.VERSION.SDK_INT >= 34) {
