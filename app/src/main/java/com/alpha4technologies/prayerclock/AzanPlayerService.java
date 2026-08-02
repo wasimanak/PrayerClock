@@ -18,7 +18,7 @@ import androidx.core.app.ServiceCompat;
 
 public class AzanPlayerService extends Service {
     private MediaPlayer mediaPlayer;
-    private static final int NOTIFICATION_ID = 1001;
+    private static final int NOTIFICATION_ID = 2002;
     private static final String TAG = "AzanPlayerService";
     private PowerManager.WakeLock wakeLock;
 
@@ -47,16 +47,24 @@ public class AzanPlayerService extends Service {
         }
         Log.d(TAG, "Prayer: " + prayerName);
         
-        // Create PendingIntent for Full Screen
+        // Create PendingIntent for Full Screen (Lock Screen Launch)
         Intent fullScreenIntent = new Intent(this, MainActivity.class);
-        fullScreenIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(this, 0, fullScreenIntent, PendingIntent.FLAG_IMMUTABLE);
+        fullScreenIntent.setFlags(
+            Intent.FLAG_ACTIVITY_NEW_TASK |
+            Intent.FLAG_ACTIVITY_CLEAR_TOP |
+            Intent.FLAG_ACTIVITY_SINGLE_TOP
+        );
+        fullScreenIntent.putExtra("prayer_name", prayerName);
+        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(
+            this, 0, fullScreenIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
 
         // Create notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NotificationHelper.CHANNEL_ID_AZAN)
                 .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-                .setContentTitle("Prayer Time " + prayerName)
-                .setContentText("حَیَّ عَلَی الصَّلٰوةِ")
+                .setContentTitle("الله اكبر — " + prayerName + " Prayer Time")
+                .setContentText("حَیَّ عَلی الصَّلٰوہِ — Come to prayer")
                 .setPriority(NotificationCompat.PRIORITY_MAX) // High priority
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setFullScreenIntent(fullScreenPendingIntent, true)

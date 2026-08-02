@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.PowerManager;
-import android.provider.Settings;
 import android.util.Log;
 
 import com.batoulapps.adhan.Madhab;
@@ -85,24 +84,21 @@ public class AzanReceiver extends BroadcastReceiver {
             context.startService(serviceIntent);
         }
 
-        // ── Launch app (most reliable cross-device method) ───────────────────
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
-                Settings.canDrawOverlays(context)) {
-            try {
-                Intent launchIntent = new Intent(context, MainActivity.class);
-                launchIntent.addFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK |
-                    Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
-                    Intent.FLAG_ACTIVITY_SINGLE_TOP
-                );
-                launchIntent.putExtra("prayer_name", prayerName);
-                context.startActivity(launchIntent);
-                Log.d(TAG, "App launched via startActivity (SYSTEM_ALERT_WINDOW granted)");
-            } catch (Exception e) {
-                Log.e(TAG, "startActivity failed: " + e.getMessage());
-            }
-        } else {
-            Log.d(TAG, "SYSTEM_ALERT_WINDOW not granted — relying on fullScreenIntent notification");
+        // ── Launch MainActivity (always, no permission check needed) ──────────
+        // fullScreenIntent in the notification handles lock screen launch.
+        // This startActivity call handles the case where phone is awake.
+        try {
+            Intent launchIntent = new Intent(context, MainActivity.class);
+            launchIntent.addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK |
+                Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
+                Intent.FLAG_ACTIVITY_SINGLE_TOP
+            );
+            launchIntent.putExtra("prayer_name", prayerName);
+            context.startActivity(launchIntent);
+            Log.d(TAG, "App launched for prayer: " + prayerName);
+        } catch (Exception e) {
+            Log.e(TAG, "startActivity failed: " + e.getMessage());
         }
 
         // ── Reschedule next prayer (AlarmManager + WorkManager + Watchdog) ────
@@ -129,15 +125,7 @@ public class AzanReceiver extends BroadcastReceiver {
         // 3. Reset the 30-minute watchdog so it starts fresh from now
         WorkManagerHelper.rescheduleWatchdog(context);
 
-        // 4. Force update the Foreground Service Notification
-        Intent serviceIntent = new Intent(context, PrayerTimerService.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(serviceIntent);
-        } else {
-            context.startService(serviceIntent);
-        }
-
-        Log.d(TAG, "scheduleNextEverything: AlarmManager + Workers + Watchdog + Service all set");
+        Log.d(TAG, "scheduleNextEverything: AlarmManager + Workers + Watchdog all set");
     }
 
     /**
