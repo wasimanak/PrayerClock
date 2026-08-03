@@ -23,6 +23,9 @@ public class BootReceiver extends BroadcastReceiver {
             // Reschedule all prayer alarms
             AlarmHelper.scheduleAllAlarms(context);
 
+            // Reschedule Durood reminder after boot
+            com.alpha4technologies.prayerclock.DuroodWorker.scheduleNext(context, androidx.work.ExistingWorkPolicy.KEEP);
+
         }
     }
 }

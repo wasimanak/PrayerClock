@@ -149,35 +149,30 @@ public class MainActivity extends BaseActivity {
         TimeZone tz = TimeZone.getTimeZone(tzId);
         timeFormat.setTimeZone(tz);
         dateFormat.setTimeZone(tz);
-        
-        startClock();
-        initFirebase(); // Track user and check update
-        
+          // ------------------- Immediate Permission Request -------------------
+        // Request runtime permissions (POST_NOTIFICATIONS, ACCESS_FINE_LOCATION) ASAP
+        requestPermissionsOnStartup();
+        // Android 14+ Full‑Screen Intent permission
+        if (Build.VERSION.SDK_INT >= 34) {
+            android.app.NotificationManager nm = getSystemService(android.app.NotificationManager.class);
+            if (nm != null && !nm.canUseFullScreenIntent()) {
+                Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT);
+                intent.setData(android.net.Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+            }
+        }
         // Initialize AdMob (Ad ID will be loaded from Firebase)
         MobileAds.initialize(this, initializationStatus -> {});
-        
-        // Request permissions with slight delay to ensure Activity is ready
-        new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> {
-            if (isDestroyed() || isFinishing()) return;
-            
-            requestPermissionsOnStartup();
-            // Android 14+: request USE_FULL_SCREEN_INTENT permission
-            if (Build.VERSION.SDK_INT >= 34) {
-                android.app.NotificationManager nm = getSystemService(android.app.NotificationManager.class);
-                if (nm != null && !nm.canUseFullScreenIntent()) {
-                    Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT);
-                    intent.setData(android.net.Uri.parse("package:" + getPackageName()));
-                    startActivity(intent);
-                }
-            }
-            // Mandatory permissions are handled in onResume to catch changes
-        }, 800);
-
-        // Show manufacturer-specific battery guide (once only, after 3s delay)
-        // This helps on Xiaomi/Samsung/Oppo/Vivo where background apps are killed
+        // Start clock & other init after permissions are being handled
+        startClock();
+        // Show manufacturer‑specific battery guide (once only, after 3 s delay)
         new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> {
             ManufacturerHelper.showGuideIfNeeded(this);
         }, 3000);
+        
+        initFirebase(); // Track user and check update
+        
+        // Mandatory permissions are handled in onResume to catch changes
     }
     
     @Override

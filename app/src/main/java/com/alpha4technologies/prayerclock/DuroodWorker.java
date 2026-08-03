@@ -57,7 +57,7 @@ public class DuroodWorker extends Worker {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
                     "Daily Reminders",
-                    NotificationManager.IMPORTANCE_DEFAULT
+                    NotificationManager.IMPORTANCE_HIGH
             );
             channel.setDescription("Reminders for Durood Shareef and Sunnah");
             nm.createNotificationChannel(channel);
