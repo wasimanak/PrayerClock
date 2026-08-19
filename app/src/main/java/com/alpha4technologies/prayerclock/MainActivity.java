@@ -1346,6 +1346,25 @@ public class MainActivity extends BaseActivity {
     }
 
 
+    @Override
+    public boolean dispatchKeyEvent(android.view.KeyEvent event) {
+        int keyCode = event.getKeyCode();
+        if (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_UP
+                || keyCode == android.view.KeyEvent.KEYCODE_VOLUME_DOWN
+                || keyCode == android.view.KeyEvent.KEYCODE_VOLUME_MUTE
+                || keyCode == android.view.KeyEvent.KEYCODE_POWER) {
+
+            if (AzanPlayerService.isPlaying) {
+                Intent stopIntent = new Intent(this, AzanPlayerService.class);
+                stopIntent.setAction(AzanPlayerService.ACTION_STOP_AZAN);
+                stopService(stopIntent);
+                Toast.makeText(this, "اذان بند کر دی گئی ہے", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
     private long backPressedTime;
     private android.widget.Toast backToast;
 

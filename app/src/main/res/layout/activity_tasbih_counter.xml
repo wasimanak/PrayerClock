@@ -23,13 +23,13 @@
     <!-- Share Button -->
     <ImageView
         android:id="@+id/btnShare"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_alignParentStart="true"
         android:layout_marginTop="48dp"
         android:layout_marginStart="16dp"
         android:padding="12dp"
-        android:src="@android:drawable/ic_menu_share"
+        android:src="@drawable/ic_share"
         app:tint="@color/gold_accent"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:clickable="true"

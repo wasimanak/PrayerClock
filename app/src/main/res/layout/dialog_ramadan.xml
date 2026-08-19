@@ -234,7 +234,7 @@
                     android:textColor="#0F172A"
                     android:textStyle="bold"
                     android:backgroundTint="#FFD700" 
-                    app:icon="@android:drawable/ic_menu_share"
+                    app:icon="@drawable/ic_share"
                     app:iconTint="#0F172A"/>
             </FrameLayout>
     

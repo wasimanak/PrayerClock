@@ -129,9 +129,12 @@ public class ManufacturerHelper {
 
     private static void openVivoWhitelist(Context context) {
         String[][] components = {
-            {"com.iqoo.secure", "com.iqoo.secure.ui.phoneoptimize.AddWhiteListActivity"},
+            {"com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.BgStartUpManagerActivity"},
             {"com.iqoo.secure", "com.iqoo.secure.ui.phoneoptimize.BgStartUpManager"},
-            {"com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.BgStartUpManagerActivity"}
+            {"com.iqoo.secure", "com.iqoo.secure.ui.phoneoptimize.AddWhiteListActivity"},
+            {"com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.PurviewTabActivity"},
+            {"com.vivo.abe", "com.vivo.application.permission.BgStartUpManagerActivity"},
+            {"com.iqoo.secure", "com.iqoo.secure.MainActivity"}
         };
         if (!tryOpenComponents(context, components)) {
             openAppInfo(context);

@@ -233,7 +233,7 @@
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:backgroundTint="#D4AF37"
-                    app:icon="@android:drawable/ic_menu_share"
+                    app:icon="@drawable/ic_share"
                     app:iconGravity="textStart"
                     app:iconTint="#0F172A"
                     app:cornerRadius="12dp"/>

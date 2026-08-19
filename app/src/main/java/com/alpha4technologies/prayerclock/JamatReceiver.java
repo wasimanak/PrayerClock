@@ -41,8 +41,13 @@ public class JamatReceiver extends BroadcastReceiver {
             
             // Play Beep
             try {
-                android.media.ToneGenerator toneGen = new android.media.ToneGenerator(android.media.AudioManager.STREAM_ALARM, 100);
+                final android.media.ToneGenerator toneGen = new android.media.ToneGenerator(android.media.AudioManager.STREAM_ALARM, 100);
                 toneGen.startTone(android.media.ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 500); // 500ms beep
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                    try {
+                        toneGen.release();
+                    } catch (Exception ignored) {}
+                }, 1000);
             } catch (Exception e) {
                 e.printStackTrace();
             }

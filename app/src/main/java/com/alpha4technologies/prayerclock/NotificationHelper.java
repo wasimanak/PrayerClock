@@ -23,6 +23,8 @@ public class NotificationHelper {
             );
             azanChannel.setDescription("Shows notification when Azan is playing");
             azanChannel.setSound(null, null); // We play sound manually via MediaPlayer
+            azanChannel.enableVibration(false);
+            azanChannel.setVibrationPattern(new long[]{0L});
             
             // Jamat Channel (Default Sound)
             NotificationChannel jamatChannel = new NotificationChannel(
