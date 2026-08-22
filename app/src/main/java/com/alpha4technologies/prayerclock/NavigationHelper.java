@@ -107,17 +107,42 @@ public class NavigationHelper {
         int gold = activity.getResources().getColor(R.color.gold_accent);
         int secondary = activity.getResources().getColor(R.color.text_secondary);
 
-        // Reset
+        // Reset backgrounds & colors
+        navHome.setBackgroundResource(0);
+        navQibla.setBackgroundResource(0);
+        navTasbih.setBackgroundResource(0);
+        navMore.setBackgroundResource(0);
+
         ivHome.setColorFilter(secondary); tvHome.setTextColor(secondary);
         ivQibla.setColorFilter(secondary); tvQibla.setTextColor(secondary);
         ivTasbih.setColorFilter(secondary); tvTasbih.setTextColor(secondary);
         ivMore.setColorFilter(secondary); tvMore.setTextColor(secondary);
 
-        // Highlight
+        ivHome.setScaleX(1.0f); ivHome.setScaleY(1.0f);
+        ivQibla.setScaleX(1.0f); ivQibla.setScaleY(1.0f);
+        ivTasbih.setScaleX(1.0f); ivTasbih.setScaleY(1.0f);
+        ivMore.setScaleX(1.0f); ivMore.setScaleY(1.0f);
+
+        // Highlight selected index with active pill background & gold tint
         switch (selectedIndex) {
-            case 0: ivHome.setColorFilter(gold); tvHome.setTextColor(gold); break;
-            case 1: ivQibla.setColorFilter(gold); tvQibla.setTextColor(gold); break;
-            case 2: ivTasbih.setColorFilter(gold); tvTasbih.setTextColor(gold); break;
+            case 0:
+                navHome.setBackgroundResource(R.drawable.bg_nav_active_pill);
+                ivHome.setColorFilter(gold);
+                tvHome.setTextColor(gold);
+                ivHome.setScaleX(1.1f); ivHome.setScaleY(1.1f);
+                break;
+            case 1:
+                navQibla.setBackgroundResource(R.drawable.bg_nav_active_pill);
+                ivQibla.setColorFilter(gold);
+                tvQibla.setTextColor(gold);
+                ivQibla.setScaleX(1.1f); ivQibla.setScaleY(1.1f);
+                break;
+            case 2:
+                navTasbih.setBackgroundResource(R.drawable.bg_nav_active_pill);
+                ivTasbih.setColorFilter(gold);
+                tvTasbih.setTextColor(gold);
+                ivTasbih.setScaleX(1.1f); ivTasbih.setScaleY(1.1f);
+                break;
         }
     }
 

@@ -3,129 +3,161 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/navCard"
     android:layout_width="match_parent"
-    android:layout_height="70dp"
-    android:layout_margin="12dp"
-    app:cardBackgroundColor="#CC1E293B"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="8dp">
+    android:layout_height="66dp"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginBottom="16dp"
+    app:cardBackgroundColor="#00000000"
+    app:cardCornerRadius="26dp"
+    app:cardElevation="12dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/bg_bottom_nav_card"
         android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="6dp"
         android:weightSum="4">
 
         <!-- Home -->
-        <LinearLayout
-            android:id="@+id/navHome"
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:background="?attr/selectableItemBackground">
+            android:paddingVertical="7dp"
+            android:paddingHorizontal="4dp">
 
-            <ImageView
-                android:id="@+id/ivHome"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_home_nav" />
+            <LinearLayout
+                android:id="@+id/navHome"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:background="?attr/selectableItemBackgroundBorderless">
 
-            <TextView
-                android:id="@+id/tvHome"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:fontFamily="@font/jameel_noori_nastaleeq"
-                android:text="Home"
-                android:textSize="14sp" />
-        </LinearLayout>
+                <ImageView
+                    android:id="@+id/ivHome"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_home_nav" />
+
+                <TextView
+                    android:id="@+id/tvHome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Home"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </FrameLayout>
 
         <!-- Qibla -->
-        <LinearLayout
-            android:id="@+id/navQibla"
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:background="?attr/selectableItemBackground">
+            android:paddingVertical="7dp"
+            android:paddingHorizontal="4dp">
 
-            <ImageView
-                android:id="@+id/ivQibla"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_qibla_nav" />
+            <LinearLayout
+                android:id="@+id/navQibla"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:background="?attr/selectableItemBackgroundBorderless">
 
-            <TextView
-                android:id="@+id/tvQibla"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:fontFamily="@font/jameel_noori_nastaleeq"
-                android:text="Qibla"
-                android:textSize="14sp" />
-        </LinearLayout>
+                <ImageView
+                    android:id="@+id/ivQibla"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_qibla_nav" />
+
+                <TextView
+                    android:id="@+id/tvQibla"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Qibla"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </FrameLayout>
 
         <!-- Tasbih -->
-        <LinearLayout
-            android:id="@+id/navTasbih"
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:background="?attr/selectableItemBackground">
+            android:paddingVertical="7dp"
+            android:paddingHorizontal="4dp">
 
-            <ImageView
-                android:id="@+id/ivTasbih"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_tasbih_nav" />
+            <LinearLayout
+                android:id="@+id/navTasbih"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:background="?attr/selectableItemBackgroundBorderless">
 
-            <TextView
-                android:id="@+id/tvTasbih"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:fontFamily="@font/jameel_noori_nastaleeq"
-                android:text="Tasbih"
-                android:textSize="14sp" />
-        </LinearLayout>
+                <ImageView
+                    android:id="@+id/ivTasbih"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_tasbih_nav" />
+
+                <TextView
+                    android:id="@+id/tvTasbih"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Tasbih"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </FrameLayout>
 
         <!-- More -->
-        <LinearLayout
-            android:id="@+id/navMore"
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:background="?attr/selectableItemBackground">
+            android:paddingVertical="7dp"
+            android:paddingHorizontal="4dp">
 
-            <ImageView
-                android:id="@+id/ivMore"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_more_nav" />
+            <LinearLayout
+                android:id="@+id/navMore"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:background="?attr/selectableItemBackgroundBorderless">
 
-            <TextView
-                android:id="@+id/tvMore"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:fontFamily="@font/jameel_noori_nastaleeq"
-                android:text="More"
-                android:textSize="14sp" />
-        </LinearLayout>
+                <ImageView
+                    android:id="@+id/ivMore"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_more_nav" />
+
+                <TextView
+                    android:id="@+id/tvMore"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="More"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </FrameLayout>
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -3,107 +3,165 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="24dp"
-    app:cardBackgroundColor="@color/midnight_blue"
-    app:cardCornerRadius="24dp"
-    app:cardElevation="8dp"
-    app:strokeColor="@color/slate_800"
+    android:layout_margin="20dp"
+    app:cardBackgroundColor="#161828"
+    app:cardCornerRadius="28dp"
+    app:cardElevation="12dp"
+    app:strokeColor="#30F59E0B"
     app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="24dp"
-        android:paddingBottom="16dp">
+        android:padding="20dp">
 
+        <!-- Top Accent Indicator -->
+        <View
+            android:layout_width="48dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="14dp"
+            android:background="@drawable/bg_count_premium_pill" />
+
+        <!-- Title -->
         <TextView
             android:id="@+id/tvOptionTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/jameel_noori_nastaleeq"
+            android:fontFamily="@font/sakkal"
             android:gravity="center"
             android:text="Tasbih Options"
-            android:textColor="@color/gold_accent"
-            android:textSize="26sp" />
+            android:textColor="#F59E0B"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
-        <View
-            android:layout_width="40dp"
-            android:layout_height="2dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="16dp"
-            android:background="@color/gold_accent" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="18dp"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:text="Select an action for this Tasbih"
+            android:textColor="#94A3B8"
+            android:textSize="13sp" />
 
-        <!-- Reset Option -->
+        <!-- Reset Option Card -->
         <LinearLayout
             android:id="@+id/llReset"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingHorizontal="24dp"
-            android:paddingVertical="16dp"
+            android:padding="14dp"
             android:gravity="center_vertical"
-            android:background="?attr/selectableItemBackground"
+            android:background="@drawable/bg_dialog_option_item"
             android:clickable="true"
             android:focusable="true">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_revert"
-                app:tint="@color/gold_accent" />
+            <FrameLayout
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_dialog_icon_gold">
 
-            <TextView
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:src="@android:drawable/ic_menu_revert"
+                    app:tint="#F59E0B" />
+            </FrameLayout>
+
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="16dp"
-                android:fontFamily="@font/jameel_noori_nastaleeq"
-                android:text="Reset Counter"
-                android:textColor="@color/text_primary"
-                android:textSize="20sp" />
+                android:layout_marginStart="14dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/sakkal"
+                    android:text="Reset Counter"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:fontFamily="sans-serif"
+                    android:text="Reset count to zero"
+                    android:textColor="#94A3B8"
+                    android:textSize="12sp" />
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- Delete Option -->
+        <!-- Delete Option Card -->
         <LinearLayout
             android:id="@+id/llDelete"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal"
-            android:paddingHorizontal="24dp"
-            android:paddingVertical="16dp"
+            android:padding="14dp"
             android:gravity="center_vertical"
-            android:background="?attr/selectableItemBackground"
+            android:background="@drawable/bg_dialog_option_item"
             android:clickable="true"
             android:focusable="true">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_delete"
-                app:tint="#EF4444" />
+            <FrameLayout
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_dialog_icon_red">
 
-            <TextView
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:src="@android:drawable/ic_menu_delete"
+                    app:tint="#EF4444" />
+            </FrameLayout>
+
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="16dp"
-                android:fontFamily="@font/jameel_noori_nastaleeq"
-                android:text="Delete Tasbih"
-                android:textColor="#EF4444"
-                android:textSize="20sp" />
+                android:layout_marginStart="14dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/sakkal"
+                    android:text="Delete Tasbih"
+                    android:textColor="#EF4444"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:fontFamily="sans-serif"
+                    android:text="Remove custom Tasbih"
+                    android:textColor="#94A3B8"
+                    android:textSize="12sp" />
+            </LinearLayout>
         </LinearLayout>
 
+        <!-- Cancel Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnOptionCancel"
             style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:text="Cancel"
-            android:textColor="@color/text_tertiary" />
+            android:textColor="#94A3B8"
+            android:textSize="14sp" />
 
     </LinearLayout>
 

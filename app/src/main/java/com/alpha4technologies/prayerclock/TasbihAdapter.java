@@ -42,6 +42,15 @@ public class TasbihAdapter extends RecyclerView.Adapter<TasbihAdapter.ViewHolder
         TasbihModel t = list.get(position);
         h.tvName.setText(t.name);
         
+        if (h.tvContentPreview != null) {
+            if (t.content != null && !t.content.trim().isEmpty()) {
+                h.tvContentPreview.setText(t.content.trim());
+                h.tvContentPreview.setVisibility(View.VISIBLE);
+            } else {
+                h.tvContentPreview.setVisibility(View.GONE);
+            }
+        }
+        
         java.text.NumberFormat formatter = java.text.NumberFormat.getNumberInstance(java.util.Locale.US);
         h.tvCount.setText(formatter.format(t.count));
 
@@ -140,10 +149,12 @@ public class TasbihAdapter extends RecyclerView.Adapter<TasbihAdapter.ViewHolder
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvCount, btnMoveUp, btnMoveDown;
+        TextView tvName, tvContentPreview, tvCount;
+        View btnMoveUp, btnMoveDown;
         ViewHolder(View v) {
             super(v);
             tvName = v.findViewById(R.id.tvName);
+            tvContentPreview = v.findViewById(R.id.tvContentPreview);
             tvCount = v.findViewById(R.id.tvCount);
             btnMoveUp = v.findViewById(R.id.btnMoveUp);
             btnMoveDown = v.findViewById(R.id.btnMoveDown);

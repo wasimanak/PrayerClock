@@ -134,6 +134,7 @@ public class SettingsActivity extends BaseActivity {
             }
         });
         
+        etSearchQuery.setSingleLine(true);
         btnSearch.setOnClickListener(v -> {
              String query = etSearchQuery.getText().toString().trim();
              if (!query.isEmpty()) {
@@ -141,6 +142,16 @@ public class SettingsActivity extends BaseActivity {
              } else {
                  Toast.makeText(this, "Please enter a city name", Toast.LENGTH_SHORT).show();
              }
+        });
+
+        etSearchQuery.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH ||
+                actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE ||
+                (event != null && event.getKeyCode() == android.view.KeyEvent.KEYCODE_ENTER && event.getAction() == android.view.KeyEvent.ACTION_DOWN)) {
+                btnSearch.performClick();
+                return true;
+            }
+            return false;
         });
         
         btnEditJamatTimes.setOnClickListener(v -> {

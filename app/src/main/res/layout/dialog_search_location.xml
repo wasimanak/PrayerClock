@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/sakkal"
             android:gravity="center"
-            android:text="Add Custom Tasbih"
+            android:text="Search Location"
             android:textColor="#F59E0B"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -42,15 +42,15 @@
             android:layout_marginBottom="20dp"
             android:fontFamily="sans-serif"
             android:gravity="center"
-            android:text="Create a new personal Tasbih for your device"
+            android:text="Type city name to see live matching results"
             android:textColor="#94A3B8"
             android:textSize="13sp" />
 
-        <!-- 1. Tasbih Name Input -->
+        <!-- Single Line Search Input -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Tasbih Name (تسبیح کا نام)"
+            android:hint="City Name (شہر کا نام)"
             app:hintTextColor="#F59E0B"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:boxStrokeColor="#F59E0B"
@@ -58,57 +58,39 @@
             app:boxCornerRadiusBottomStart="16dp"
             app:boxCornerRadiusTopEnd="16dp"
             app:boxCornerRadiusTopStart="16dp"
-            app:placeholderText="e.g. Durood-e-Ibrahimi"
+            app:placeholderText="e.g. Lahore, Karachi, Islamabad"
             app:placeholderTextColor="#4DFFFFFF"
-            android:textColorHint="#94A3B8">
+            android:textColorHint="#94A3B8"
+            app:endIconMode="clear_text"
+            app:endIconTint="#94A3B8">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etTasbihName"
+                android:id="@+id/etSearchQuery"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/sakkal"
                 android:inputType="text"
+                android:singleLine="true"
+                android:maxLines="1"
+                android:imeOptions="actionSearch"
                 android:textColor="#FFFFFF"
                 android:textSize="17sp"
                 android:padding="16dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- 2. Tasbih Text / Words Input -->
-        <com.google.android.material.textfield.TextInputLayout
+        <!-- Live City Suggestions List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCitySuggestions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:hint="Tasbih Text / Words (تسبیح کے الفاظ)"
-            app:hintTextColor="#F59E0B"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:boxStrokeColor="#F59E0B"
-            app:boxCornerRadiusBottomEnd="16dp"
-            app:boxCornerRadiusBottomStart="16dp"
-            app:boxCornerRadiusTopEnd="16dp"
-            app:boxCornerRadiusTopStart="16dp"
-            app:placeholderText="e.g. اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ"
-            app:placeholderTextColor="#4DFFFFFF"
-            android:textColorHint="#94A3B8">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etTasbihContent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/sakkal"
-                android:inputType="textMultiLine"
-                android:minLines="2"
-                android:maxLines="4"
-                android:gravity="top|start"
-                android:textColor="#FFFFFF"
-                android:textSize="17sp"
-                android:padding="16dp" />
-        </com.google.android.material.textfield.TextInputLayout>
+            android:layout_marginTop="12dp"
+            android:visibility="gone"/>
 
         <!-- Action Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal"
             android:gravity="end">
 
@@ -123,10 +105,10 @@
                 android:layout_marginEnd="8dp" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAdd"
+                android:id="@+id/btnSearch"
                 android:layout_width="wrap_content"
                 android:layout_height="52dp"
-                android:text="Add Tasbih"
+                android:text="Search"
                 android:textColor="#161828"
                 android:textStyle="bold"
                 android:backgroundTint="#F59E0B"

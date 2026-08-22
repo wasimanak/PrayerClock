@@ -762,22 +762,152 @@ public class MainActivity extends BaseActivity {
         });
     }
     
-    private void showLocationSearchDialog() {
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-        builder.setTitle("Search Location");
+    private interface OnCitySelectedListener {
+        void onCitySelected(android.location.Address address);
+    }
 
-        final android.widget.EditText input = new android.widget.EditText(this);
-        input.setHint("Enter City Name (e.g. Lahore)");
-        builder.setView(input);
+    private class CitySuggestionAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<CitySuggestionAdapter.ViewHolder> {
+        private final java.util.List<android.location.Address> items;
+        private final OnCitySelectedListener listener;
 
-        builder.setPositiveButton("Search", (dialog, which) -> {
-            String query = input.getText().toString();
-            if (!query.isEmpty()) {
-                performLocationSearch(query);
+        CitySuggestionAdapter(java.util.List<android.location.Address> items, OnCitySelectedListener listener) {
+            this.items = items;
+            this.listener = listener;
+        }
+
+        @androidx.annotation.NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@androidx.annotation.NonNull android.view.ViewGroup parent, int viewType) {
+            View v = getLayoutInflater().inflate(R.layout.item_city_suggestion, parent, false);
+            return new ViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(@androidx.annotation.NonNull ViewHolder holder, int position) {
+            android.location.Address addr = items.get(position);
+            StringBuilder sb = new StringBuilder();
+            if (addr.getLocality() != null) sb.append(addr.getLocality()).append(", ");
+            else if (addr.getFeatureName() != null) sb.append(addr.getFeatureName()).append(", ");
+            if (addr.getAdminArea() != null) sb.append(addr.getAdminArea()).append(", ");
+            if (addr.getCountryName() != null) sb.append(addr.getCountryName());
+            
+            holder.tvCityName.setText(sb.toString());
+            holder.itemView.setOnClickListener(v -> {
+                if (listener != null) listener.onCitySelected(addr);
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return items.size();
+        }
+
+        class ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
+            android.widget.TextView tvCityName;
+            ViewHolder(View v) {
+                super(v);
+                tvCityName = v.findViewById(R.id.tvCityName);
             }
+        }
+    }
+
+    private void showLocationSearchDialog() {
+        android.app.Dialog dialog = new android.app.Dialog(this);
+        dialog.setContentView(R.layout.dialog_search_location);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
+        android.widget.EditText etSearchQuery = dialog.findViewById(R.id.etSearchQuery);
+        android.widget.Button btnSearch = dialog.findViewById(R.id.btnSearch);
+        android.widget.Button btnCancel = dialog.findViewById(R.id.btnCancel);
+        androidx.recyclerview.widget.RecyclerView rvCitySuggestions = dialog.findViewById(R.id.rvCitySuggestions);
+
+        java.util.List<android.location.Address> suggestionList = new java.util.ArrayList<>();
+        CitySuggestionAdapter suggestionAdapter = new CitySuggestionAdapter(suggestionList, address -> {
+            dialog.dismiss();
+            saveManualLocation(address);
         });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-        builder.show();
+
+        if (rvCitySuggestions != null) {
+            rvCitySuggestions.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this));
+            rvCitySuggestions.setAdapter(suggestionAdapter);
+        }
+
+        Handler liveSearchHandler = new Handler(Looper.getMainLooper());
+        Runnable liveSearchRunnable = new Runnable() {
+            @Override
+            public void run() {
+                String query = etSearchQuery.getText() != null ? etSearchQuery.getText().toString().trim() : "";
+                if (query.length() < 2) {
+                    suggestionList.clear();
+                    suggestionAdapter.notifyDataSetChanged();
+                    if (rvCitySuggestions != null) rvCitySuggestions.setVisibility(View.GONE);
+                    return;
+                }
+
+                new Thread(() -> {
+                    try {
+                        android.location.Geocoder geocoder = new android.location.Geocoder(MainActivity.this, Locale.getDefault());
+                        java.util.List<android.location.Address> addresses = geocoder.getFromLocationName(query, 5);
+                        runOnUiThread(() -> {
+                            suggestionList.clear();
+                            if (addresses != null && !addresses.isEmpty()) {
+                                suggestionList.addAll(addresses);
+                                suggestionAdapter.notifyDataSetChanged();
+                                if (rvCitySuggestions != null) rvCitySuggestions.setVisibility(View.VISIBLE);
+                            } else {
+                                suggestionAdapter.notifyDataSetChanged();
+                                if (rvCitySuggestions != null) rvCitySuggestions.setVisibility(View.GONE);
+                            }
+                        });
+                    } catch (Exception ignored) {}
+                }).start();
+            }
+        };
+
+        etSearchQuery.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                liveSearchHandler.removeCallbacks(liveSearchRunnable);
+                liveSearchHandler.postDelayed(liveSearchRunnable, 300);
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {}
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        Runnable doSearch = () -> {
+            String query = etSearchQuery.getText() != null ? etSearchQuery.getText().toString().trim() : "";
+            if (!query.isEmpty()) {
+                dialog.dismiss();
+                performLocationSearch(query);
+            } else {
+                etSearchQuery.setError("Please enter a city name");
+            }
+        };
+
+        btnSearch.setOnClickListener(v -> doSearch.run());
+
+        // Single-line Enter key / Search action on keyboard -> direct search
+        etSearchQuery.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH ||
+                actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE ||
+                (event != null && event.getKeyCode() == android.view.KeyEvent.KEYCODE_ENTER && event.getAction() == android.view.KeyEvent.ACTION_DOWN)) {
+                doSearch.run();
+                return true;
+            }
+            return false;
+        });
+
+        dialog.show();
     }
 
     private void performLocationSearch(String query) {
