@@ -4,36 +4,73 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="8dp"
+    android:layout_marginVertical="6dp"
     card_view:cardCornerRadius="16dp"
     card_view:cardElevation="4dp"
     card_view:cardBackgroundColor="#1A1A3A">
 
-    <!-- Force LTR so that Urdu/Arabic UI doesn't mirror the layout elements -->
+    <!-- Force LTR so layout elements remain predictable -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
-        android:padding="20dp"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="12dp"
         android:layoutDirection="ltr">
+
+        <!-- Reorder Arrows Container (Left Side) -->
+        <LinearLayout
+            android:id="@+id/llReorder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginRight="12dp">
+
+            <TextView
+                android:id="@+id/btnMoveUp"
+                android:layout_width="34dp"
+                android:layout_height="28dp"
+                android:text="▲"
+                android:textColor="#F59E0B"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:focusable="true"
+                android:clickable="true"/>
+
+            <TextView
+                android:id="@+id/btnMoveDown"
+                android:layout_width="34dp"
+                android:layout_height="28dp"
+                android:text="▼"
+                android:textColor="#F59E0B"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:focusable="true"
+                android:clickable="true"/>
+        </LinearLayout>
 
         <!-- Tasbih Name -->
         <TextView
             android:id="@+id/tvName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
+            android:layout_toRightOf="@id/llReorder"
             android:layout_toLeftOf="@+id/tvCountContainer"
-            android:layout_marginRight="16dp"
+            android:layout_marginRight="12dp"
             android:layout_centerVertical="true"
             android:text="Tasbih Name"
-            android:textSize="20sp"
+            android:textSize="19sp"
             android:textColor="#FFFFFF"
             android:fontFamily="@font/sakkal"
             android:maxLines="2"
             android:ellipsize="end"
             android:gravity="left|center_vertical"
-            android:textDirection="locale"/> <!-- Ensures proper language character order -->
+            android:textDirection="locale"/>
 
         <!-- Counter Bubble (Right Side) -->
         <FrameLayout
@@ -49,11 +86,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="33"
-                android:textSize="18sp"
+                android:textSize="17sp"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="#FFFFFF"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"/>
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="6dp"/>
         </FrameLayout>
     </RelativeLayout>
 

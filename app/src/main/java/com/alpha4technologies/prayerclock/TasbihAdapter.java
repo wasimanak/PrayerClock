@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.Collections;
 import java.util.List;
 
 public class TasbihAdapter extends RecyclerView.Adapter<TasbihAdapter.ViewHolder> {
@@ -44,6 +45,30 @@ public class TasbihAdapter extends RecyclerView.Adapter<TasbihAdapter.ViewHolder
         java.text.NumberFormat formatter = java.text.NumberFormat.getNumberInstance(java.util.Locale.US);
         h.tvCount.setText(formatter.format(t.count));
 
+        // Reorder buttons visibility & clicks
+        h.btnMoveUp.setVisibility(position > 0 ? View.VISIBLE : View.INVISIBLE);
+        h.btnMoveDown.setVisibility(position < list.size() - 1 ? View.VISIBLE : View.INVISIBLE);
+
+        h.btnMoveUp.setOnClickListener(v -> {
+            int pos = h.getAdapterPosition();
+            if (pos > 0 && pos != RecyclerView.NO_POSITION) {
+                Collections.swap(list, pos, pos - 1);
+                notifyItemMoved(pos, pos - 1);
+                notifyItemRangeChanged(pos - 1, 2);
+                if (saveCallback != null) saveCallback.run();
+            }
+        });
+
+        h.btnMoveDown.setOnClickListener(v -> {
+            int pos = h.getAdapterPosition();
+            if (pos >= 0 && pos < list.size() - 1 && pos != RecyclerView.NO_POSITION) {
+                Collections.swap(list, pos, pos + 1);
+                notifyItemMoved(pos, pos + 1);
+                notifyItemRangeChanged(pos, 2);
+                if (saveCallback != null) saveCallback.run();
+            }
+        });
+
         // Click → open TasbihCounterActivity
         h.itemView.setOnClickListener(v -> {
             Intent i = new Intent(context, TasbihCounterActivity.class);
@@ -65,13 +90,14 @@ public class TasbihAdapter extends RecyclerView.Adapter<TasbihAdapter.ViewHolder
             }
 
             TextView tvTitle = dialog.findViewById(R.id.tvOptionTitle);
-            tvTitle.setText(t.name); // Set current tasbih name as title
+            tvTitle.setText(t.name);
 
             // Reset Listener
             dialog.findViewById(R.id.llReset).setOnClickListener(v1 -> {
                 int pos = h.getAdapterPosition();
                 if (pos != RecyclerView.NO_POSITION) {
                     list.get(pos).count = 0;
+                    list.get(pos).todayCount = 0;
                     notifyItemChanged(pos);
                     if (saveCallback != null) saveCallback.run();
                     android.widget.Toast.makeText(context, "Counter has been reset", android.widget.Toast.LENGTH_SHORT).show();
@@ -82,10 +108,13 @@ public class TasbihAdapter extends RecyclerView.Adapter<TasbihAdapter.ViewHolder
             // Delete Listener
             dialog.findViewById(R.id.llDelete).setOnClickListener(v2 -> {
                 dialog.dismiss();
-                // Professional Delete Confirmation
+                if (!t.isCustom) {
+                    android.widget.Toast.makeText(context, " You cannot delete this Tasbih", android.widget.Toast.LENGTH_LONG).show();
+                    return;
+                }
                 new AlertDialog.Builder(context)
                         .setTitle("Delete Tasbih?")
-                        .setMessage("Are you sure you want to permanently delete this tasbih?")
+                        .setMessage("Are you sure you want to delete '" + t.name + "'?")
                         .setPositiveButton("Delete", (d, w) -> {
                             int posToDelete = h.getAdapterPosition();
                             if (posToDelete == RecyclerView.NO_POSITION) return;
@@ -111,11 +140,13 @@ public class TasbihAdapter extends RecyclerView.Adapter<TasbihAdapter.ViewHolder
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvCount;
+        TextView tvName, tvCount, btnMoveUp, btnMoveDown;
         ViewHolder(View v) {
             super(v);
             tvName = v.findViewById(R.id.tvName);
             tvCount = v.findViewById(R.id.tvCount);
+            btnMoveUp = v.findViewById(R.id.btnMoveUp);
+            btnMoveDown = v.findViewById(R.id.btnMoveDown);
         }
     }
 }

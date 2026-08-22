@@ -92,6 +92,15 @@ public class TasbihCounterActivity extends BaseActivity {
 
         // Initial setup
         tvName.setText(tasbih.name);
+        TextView tvContent = findViewById(R.id.tvTasbihContent);
+        if (tvContent != null) {
+            if (tasbih.content != null && !tasbih.content.trim().isEmpty()) {
+                tvContent.setText(tasbih.content.trim());
+                tvContent.setVisibility(View.VISIBLE);
+            } else {
+                tvContent.setVisibility(View.GONE);
+            }
+        }
         formatAndDisplayCount();
 
         // Back button removed per user request
@@ -218,11 +227,18 @@ public class TasbihCounterActivity extends BaseActivity {
             Type type = new TypeToken<ArrayList<TasbihModel>>() {}.getType();
             ArrayList<TasbihModel> loadedList = gson.fromJson(json, type);
             if (loadedList != null) {
+                boolean found = false;
                 for (int i = 0; i < loadedList.size(); i++) {
-                    if (loadedList.get(i).id.equals(tasbih.id)) {
+                    TasbihModel item = loadedList.get(i);
+                    if ((item.id != null && item.id.equals(tasbih.id))
+                            || (item.name != null && item.name.trim().equalsIgnoreCase(tasbih.name.trim()))) {
                         loadedList.set(i, tasbih);
+                        found = true;
                         break;
                     }
+                }
+                if (!found) {
+                    loadedList.add(tasbih);
                 }
                 prefs.edit().putString("list", gson.toJson(loadedList)).apply();
             }

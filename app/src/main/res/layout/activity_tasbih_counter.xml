@@ -55,29 +55,45 @@
         android:id="@+id/tvTasbihName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="80dp"
         android:layout_marginHorizontal="24dp"
         android:fontFamily="@font/sakkal"
         android:gravity="center"
         android:text="Tasbih Name"
         android:textColor="@color/gold_accent"
-        android:textSize="32sp"
-        android:letterSpacing="0.05"
+        android:textSize="30sp"
+        android:letterSpacing="0.03"
         android:shadowColor="#80000000"
         android:shadowDx="0"
         android:shadowDy="4"
         android:shadowRadius="8"/>
 
-    <!-- Instruction Subtitle -->
+    <!-- Tasbih Text / Words (Optional) -->
     <TextView
+        android:id="@+id/tvTasbihContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/tvTasbihName"
+        android:layout_marginTop="4dp"
+        android:layout_marginHorizontal="24dp"
+        android:fontFamily="@font/sakkal"
+        android:gravity="center"
+        android:text="Tasbih Words"
+        android:textColor="#E2E8F0"
+        android:textSize="21sp"
+        android:visibility="gone"/>
+
+    <!-- Instruction Subtitle -->
+    <TextView
+        android:id="@+id/tvInstruction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvTasbihContent"
         android:layout_marginTop="8dp"
         android:gravity="center"
         android:text="Tap anywhere to count • Long press to minus"
         android:textColor="#88FFFFFF"
-        android:textSize="14sp"
+        android:textSize="13sp"
         android:fontFamily="sans-serif"
         android:letterSpacing="0.02"/>
 

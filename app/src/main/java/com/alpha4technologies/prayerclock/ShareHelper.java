@@ -175,8 +175,12 @@ public class ShareHelper {
         ImageView ivQrCode      = dialog.findViewById(R.id.ivQrCode);
         Button btnShareImage    = dialog.findViewById(R.id.btnShareImage);
 
-        // Populate Data
-        tvTasbihName.setText(tasbih.name);
+        // Populate Data — Show Tasbih content/words if available, otherwise show name
+        if (tasbih.content != null && !tasbih.content.trim().isEmpty()) {
+            tvTasbihName.setText(tasbih.content.trim());
+        } else {
+            tvTasbihName.setText(tasbih.name);
+        }
 
         // Islamic (Hijri) date — left
         String tzId2 = prefs.getString("current_timezone", TimeZone.getDefault().getID());
@@ -206,8 +210,9 @@ public class ShareHelper {
             }
 
             final String shareLink = appLink;
+            final String shareTitle = (tasbih.content != null && !tasbih.content.trim().isEmpty()) ? tasbih.content.trim() : tasbih.name;
             btnShareImage.setOnClickListener(v -> {
-                shareImageContent(activity, shareableContent, shareLink, "tasbih_share.png", "Check out my Tasbih count! \n\nDownload App: " + shareLink);
+                shareImageContent(activity, shareableContent, shareLink, "tasbih_share.png", "Check out my Tasbih count for " + shareTitle + "! \n\nDownload App: " + shareLink);
             });
 
         } catch (Exception e) {

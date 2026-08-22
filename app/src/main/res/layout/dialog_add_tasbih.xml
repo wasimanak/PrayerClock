@@ -34,13 +34,14 @@
             android:layout_height="2dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="20dp"
             android:background="@color/gold_accent" />
 
+        <!-- 1. Tasbih Name Input -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Tasbih Name"
+            android:hint="Tasbih Name (تسبیح کا نام)"
             app:hintTextColor="@color/text_secondary"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:boxStrokeColor="@color/gold_accent"
@@ -48,7 +49,7 @@
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusTopStart="12dp"
-            app:placeholderText="Example: Subhan Allah"
+            app:placeholderText="Example: Durood-e-Ibrahimi"
             app:placeholderTextColor="#4DFFFFFF"
             android:textColorHint="@color/text_secondary">
 
@@ -63,10 +64,41 @@
                 android:padding="16dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- 2. Tasbih Text / Words Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Tasbih Text / Words (تسبیح کے الفاظ)"
+            app:hintTextColor="@color/text_secondary"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@color/gold_accent"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:placeholderText="Example: اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ"
+            app:placeholderTextColor="#4DFFFFFF"
+            android:textColorHint="@color/text_secondary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTasbihContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/sakkal"
+                android:inputType="textMultiLine"
+                android:minLines="2"
+                android:maxLines="4"
+                android:gravity="top|start"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:padding="16dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="24dp"
             android:orientation="horizontal"
             android:gravity="end">
 
